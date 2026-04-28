@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\typek\\Desktop\\Studia\\S04\\.NET\\KanGainNET\\KanGainNET.csproj": {}
+    "C:\\Users\\typek\\source\\repos\\dotNET-KanGain\\KanGainNET\\KanGainNET.csproj": {}
   },
   "projects": {
-    "C:\\Users\\typek\\Desktop\\Studia\\S04\\.NET\\KanGainNET\\KanGainNET.csproj": {
+    "C:\\Users\\typek\\source\\repos\\dotNET-KanGain\\KanGainNET\\KanGainNET.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\typek\\Desktop\\Studia\\S04\\.NET\\KanGainNET\\KanGainNET.csproj",
+        "projectUniqueName": "C:\\Users\\typek\\source\\repos\\dotNET-KanGain\\KanGainNET\\KanGainNET.csproj",
         "projectName": "KanGainNET",
-        "projectPath": "C:\\Users\\typek\\Desktop\\Studia\\S04\\.NET\\KanGainNET\\KanGainNET.csproj",
+        "projectPath": "C:\\Users\\typek\\source\\repos\\dotNET-KanGain\\KanGainNET\\KanGainNET.csproj",
         "packagesPath": "C:\\Users\\typek\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\typek\\Desktop\\Studia\\S04\\.NET\\KanGainNET\\obj\\",
+        "outputPath": "C:\\Users\\typek\\source\\repos\\dotNET-KanGain\\KanGainNET\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"

@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("KanGainNET")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+9c43d9f30f135694f20a27bdfb3e3e03d406cfd9")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+bd3252b899a0edb3e37bf649bfe3115e1e5bf708")]
 [assembly: System.Reflection.AssemblyProductAttribute("KanGainNET")]
 [assembly: System.Reflection.AssemblyTitleAttribute("KanGainNET")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
