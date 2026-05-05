@@ -40,7 +40,7 @@ namespace KanGainNET.Controllers
                 Email = model.Email,
                 Haslo = HashujHaslo(model.Haslo),
                 DataRejestracji = DateTime.Now,
-                RolaId = 3, // Klient
+                RolaId = 2,
                 Profil = new ProfilUzytkownika
                 {
                     Imie = model.Imie,

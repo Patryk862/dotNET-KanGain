@@ -18,9 +18,21 @@
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between align-items-center">
                     
                     <ul class="navbar-nav flex-grow-1 ms-4">
-                        <li class="nav-item">
-                            <a class="nav-link" asp-area="" asp-controller="Home" asp-action="Index">Start</a>
-                        </li>
+                        <!-- Widoczne tylko dla Administratora -->
+                        @if (User.IsInRole("Admin"))
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link text-warning" asp-controller="Admin" asp-action="Index">Panel Admina</a>
+                            </li>
+                        }
+
+                        <!-- Widoczne tylko dla Pracownika / Trenera -->
+                        @if (User.IsInRole("Trener"))
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link text-info" asp-controller="Pracownik" asp-action="Index">Strefa Pracownika</a>
+                            </li>
+                        }
                     </ul>
 
                     <ul class="navbar-nav align-items-center">
