@@ -1,21 +1,31 @@
 using KanGainNET.Models;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
+using KanGainNET.Data; // Dodane dla SilowniaContext
+using Microsoft.EntityFrameworkCore; // Dodane dla ToListAsync()
 
 namespace KanGainNET.Controllers
 {
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
+        private readonly SilowniaContext _context; // Dodane pole na bazę danych
 
-        public HomeController(ILogger<HomeController> logger)
+        // Wstrzykujemy oba serwisy przez konstruktor
+        public HomeController(ILogger<HomeController> logger, SilowniaContext context)
         {
             _logger = logger;
+            _context = context;
         }
 
-        public IActionResult Index()
+        // Zmieniamy na async Task, żeby asynchronicznie pobrać dane z bazy
+        public async Task<IActionResult> Index()
         {
-            return View();
+            // Pobieramy listę karnetów z bazy danych
+            var karnety = await _context.TypyKarnetow.ToListAsync();
+            
+            // Przekazujemy listę do widoku (Index.cshtml)
+            return View(karnety);
         }
 
         public IActionResult Privacy()

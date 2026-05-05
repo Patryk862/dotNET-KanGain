@@ -1,11 +1,224 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+﻿@model IEnumerable<KanGainNET.Models.TypKarnetu>
+
+@{
+    ViewData["Title"] = "Strona Główna";
 }
 
-<div class="text-center">
-    <h1 class="display-5">Welcome Golden</h1>
-    <h2 class="display-6">Furioza nigdy swoich nie zostawia.... NIGDY!</h2>
-    <p class=""><i class="bi bi-2-circle"></i><i class="bi bi-1-circle-fill"></i><i class="bi bi-3-circle"></i><i class="bi bi-7-circle-fill"></i></p>
-    <img class="img-fluid" src="images/prezesi.png" alt="Na zdjęciu są widoczne 3 samce alfa, tak zwane SIGMY"/>
-    <p><i class="bi bi-apple fs-3"></i>  Don't ever be so arrogant as to believe your code is correct  <i class="bi bi-apple fs-3"></i></p>
+<style>
+    .hero-section {
+        background: linear-gradient(-45deg, #0a0a0a, #2a0b00, #401000, #0a0a0a);
+        background-size: 400% 400%;
+        animation: gradientHero 10s ease infinite;
+        border-bottom: 3px solid var(--gym-primary);
+        min-height: 500px;
+        display: flex;
+        align-items: center;
+    }
+    @@keyframes gradientHero { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+    .text-gym { color: var(--gym-primary) !important; }
+    .feature-card { background-color: var(--gym-card-bg); border: 1px solid #333; transition: transform 0.4s ease, border-color 0.4s ease; }
+    .feature-card:hover { transform: translateY(-10px); border-color: var(--gym-primary); }
+    
+    .carousel-container { position: relative; width: 100%; height: 520px; display: flex; justify-content: center; align-items: center; overflow: hidden; margin-top: 2rem; }
+    .pricing-card { position: absolute; width: 300px; background-color: var(--gym-card-bg); border: 1px solid #333; border-radius: 1rem; padding: 2rem; transition: all 0.5s cubic-bezier(0.25, 0.8, 0.25, 1); text-align: center; opacity: 0; z-index: 1; transform: scale(0.5) translateX(0); }
+    
+    .pricing-card.active { opacity: 1; z-index: 3; transform: scale(1.1) translateX(0); border: 2px solid var(--gym-primary); box-shadow: 0 10px 30px rgba(255, 69, 0, 0.3); }
+    .pricing-card.prev { transform: scale(0.85) translateX(-120%); opacity: 0.6; z-index: 2; cursor: pointer; }
+    .pricing-card.next { transform: scale(0.85) translateX(120%); opacity: 0.6; z-index: 2; cursor: pointer; }
+    .pricing-card.prev:hover, .pricing-card.next:hover { opacity: 0.9; }
+
+    .carousel-btn { position: absolute; top: 50%; transform: translateY(-50%); background: rgba(255, 69, 0, 0.2); color: var(--gym-primary); border: 1px solid var(--gym-primary); border-radius: 50%; width: 50px; height: 50px; font-size: 1.5rem; z-index: 10; cursor: pointer; transition: background 0.3s; }
+    .carousel-btn:hover { background: var(--gym-primary); color: white; }
+    .btn-prev { left: 10%; }
+    .btn-next { right: 10%; }
+    .typing-cursor { display: inline-block; width: 4px; background-color: var(--gym-primary); animation: blink 0.8s infinite; }
+    @@keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+</style>
+
+<!-- SEKCJA 1: HERO -->
+<div class="hero-section text-center shadow-lg position-relative w-100 mb-5">
+    <div class="container py-5 position-relative z-index-1">
+        <h1 class="display-3 fw-bold mb-3 text-uppercase text-white">
+            Przekraczaj <span id="dynamic-text" class="text-gym"></span><span class="typing-cursor">&nbsp;</span>
+        </h1>
+        <p class="lead mb-4 mx-auto text-secondary" style="max-width: 600px;">
+            Surowy klimat, najwyższej klasy sprzęt i ludzie, którzy nie szukają wymówek. 
+            Gotowy na prawdziwy trening?
+        </p>
+        <div class="d-flex justify-content-center gap-3 mt-4">
+            @if (!User.Identity.IsAuthenticated)
+            {
+                <a asp-controller="Konto" asp-action="Rejestracja" class="btn btn-gym btn-lg px-5 rounded-pill">Dołącz do stada</a>
+                <a asp-controller="Konto" asp-action="Logowanie" class="btn btn-outline-light btn-lg px-5 rounded-pill">Zaloguj się</a>
+            }
+            else
+            {
+                <a asp-controller="Karnety" asp-action="Kup" class="btn btn-gym btn-lg px-5 rounded-pill">Kup karnet</a>
+                <a asp-controller="Grafik" asp-action="Zajecia" class="btn btn-outline-light btn-lg px-5 rounded-pill">Grafik zajęć</a>
+            }
+        </div>
+    </div>
 </div>
+
+<!-- SEKCJA 2: CENNIK (Zaciągany z bazy danych) -->
+<div class="py-5 my-5">
+    <div class="container text-center">
+        <h2 class="fw-bold text-uppercase mb-2 text-white">Wybierz Swój <span class="text-gym">Arsenał</span></h2>
+        <p class="text-secondary">Wybierz plan dopasowany do Twoich potrzeb.</p>
+        
+        <div class="carousel-container">
+            <button class="carousel-btn btn-prev" onclick="moveCarousel(-1)">&#10094;</button>
+            
+            @{ int i = 0; }
+            @foreach (var karnet in Model)
+            {
+                <div class="pricing-card" data-index="@i">
+                    <h4 class="fw-bold text-secondary text-uppercase">@karnet.Nazwa</h4>
+                    
+                    <!-- Formatuje kwotę odcinając zera po przecinku (np. z 20.00 na 20) -->
+                    <h2 class="my-4 text-white">@karnet.Cena.ToString("0") <small class="text-muted fs-6">zł</small></h2>
+                    
+                    <ul class="list-unstyled text-start mb-4 text-secondary">
+                        @if (karnet.CzasTrwaniaDni == 1)
+                        {
+                            <li>✔️ Ważność: @karnet.CzasTrwaniaDni dzień</li>
+                            <li>✔️ Jednorazowy wstęp</li>
+                            <li>❌ Brak zajęć grupowych</li>
+                        }
+                        else
+                        {
+                            <li>✔️ Ważność: @karnet.CzasTrwaniaDni dni</li>
+                            <li><strong class="text-gym">✔️ Dostęp Open 24/7</strong></li>
+                            <li>✔️ Wszystkie zajęcia grupowe</li>
+                        }
+                    </ul>
+                    <a href="#" class="btn w-100 rounded-pill fw-bold dynamic-btn">Wybierz</a>
+                </div>
+                i++;
+            }
+
+            <button class="carousel-btn btn-next" onclick="moveCarousel(1)">&#10095;</button>
+        </div>
+    </div>
+</div>
+
+<!-- SEKCJA 3: DLACZEGO MY -->
+<div class="container mb-5 pb-5 mt-5">
+    <div class="row g-4 text-center">
+        <div class="col-md-4">
+            <div class="feature-card h-100 p-4 rounded-4 shadow">
+                <div class="text-gym mb-3">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="50" height="50" fill="currentColor" viewBox="0 0 16 16"><path d="M12.428 5.758A4.002 4.002 0 0 0 8 2a4 4 0 0 0-4.428 3.758C2.593 6.438 2 7.649 2 9c0 2.761 2.686 5 6 5s6-2.239 6-5c0-1.351-.593-2.562-1.572-3.242zM8 3a3 3 0 0 1 2.946 2.45 6.096 6.096 0 0 0-5.892 0A3 3 0 0 1 8 3z"/></svg>
+                </div>
+                <h5 class="fw-bold text-uppercase text-white">Czyste żelastwo</h5>
+                <p class="text-secondary mb-0">Strefa wolnych ciężarów zaprojektowana z myślą o profesjonalistach.</p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="feature-card h-100 p-4 rounded-4 shadow">
+                <div class="text-gym mb-3">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="50" height="50" fill="currentColor" class="bi bi-fire" viewBox="0 0 16 16"><path d="M8 16c3.314 0 6-2 6-5.5 0-1.5-.5-2.8-1.5-3.65-1.02-.87-2.12-1.25-2.75-1.55C9.12 4.98 9 4.2 9 4c0-.5.5-1 1-1.5C9.5 2 8 0 8 0s-1.5 2-2.5 2.5C6 3 6.5 3.5 6.5 4c0 .2-.12.98-.75 1.3-1.03.52-2.23 1.25-2.75 2.2C2.25 8.2 2 9.2 2 10.5 2 14 4.686 16 8 16Zm0-1c-2.76 0-5-1.76-5-4.5 0-.96.22-1.74.55-2.2.3-.41.68-.78 1.15-1.05C5.45 6.7 6.3 6.1 6.5 5.2c.2.6.65 1.15 1.1 1.45.85.58 2.05 1.22 2.05 2.85 0 1.5-1.5 2.5-3 2.5 0-.8.5-1.5 1-2.2-.6.7-1.5 1.5-1.5 2.5 0 1.5 1.2 2.5 2.5 2.5 1.3 0 2.5-1 2.5-2.5 0-1.5-1-2.5-2-3.5 1.5 1 2.5 2.5 2.5 4.5 0 2.74-2.24 4.5-5 4.5Z"/></svg>
+                </div>
+                <h5 class="fw-bold text-uppercase text-white">Hardcore Cardio</h5>
+                <p class="text-secondary mb-0">Najnowsze maszyny z ekranami i strefa HIIT, która spali każdą kalorię.</p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="feature-card h-100 p-4 rounded-4 shadow">
+                <div class="text-gym mb-3">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="50" height="50" fill="currentColor" class="bi bi-people-fill" viewBox="0 0 16 16"><path d="M7 14s-1 0-1-1 1-4 5-4 5 3 5 4-1 1-1 1H7Zm4-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6Zm-5.784 6A2.238 2.238 0 0 1 5 13c0-1.355.68-2.75 1.936-3.72A6.325 6.325 0 0 0 5 9c-4 0-5 3-5 4s1 1 1 1h4.216ZM4.5 8a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5Z"/></svg>
+                </div>
+                <h5 class="fw-bold text-uppercase text-white">Społeczność</h5>
+                <p class="text-secondary mb-0">Trenuj z ludźmi, którzy dzielą Twoją pasję. Razem możemy więcej.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        const cards = document.querySelectorAll('.pricing-card');
+        const totalCards = cards.length;
+        // Dynamiczne wyliczenie środkowego indeksu niezależnie od tego ile wypluje baza (u Ciebie to 6 sztuk, wiec zaczniemy od indeksu 2)
+        let currentIndex = Math.floor(totalCards / 2) - 1; 
+
+        function updateCarousel() {
+            const prevIndex = (currentIndex - 1 + totalCards) % totalCards;
+            const nextIndex = (currentIndex + 1) % totalCards;
+
+            cards.forEach((card, index) => {
+                card.classList.remove('active', 'prev', 'next');
+                const btn = card.querySelector('.dynamic-btn');
+                btn.classList.remove('btn-gym', 'btn-outline-light');
+
+                if (index === currentIndex) {
+                    card.classList.add('active');
+                    btn.classList.add('btn-gym');
+                } 
+                else if (index === prevIndex) {
+                    card.classList.add('prev');
+                    btn.classList.add('btn-outline-light');
+                } 
+                else if (index === nextIndex) {
+                    card.classList.add('next');
+                    btn.classList.add('btn-outline-light');
+                } else {
+                    btn.classList.add('btn-outline-light');
+                }
+            });
+        }
+
+        function moveCarousel(step) {
+            currentIndex = (currentIndex + step + totalCards) % totalCards;
+            updateCarousel();
+        }
+
+        cards.forEach((card, index) => {
+            card.addEventListener('click', () => {
+                if (card.classList.contains('prev') || card.classList.contains('next')) {
+                    currentIndex = index;
+                    updateCarousel();
+                }
+            });
+        });
+
+        const words = ["granice", "swoje słabości", "oczekiwania", "własne limity"];
+        let wordIndex = 0;
+        let timer;
+
+        function typingEffect() {
+            let word = words[wordIndex].split("");
+            var loopTyping = function () {
+                if (word.length > 0) {
+                    document.getElementById('dynamic-text').innerHTML += word.shift();
+                } else {
+                    setTimeout(deletingEffect, 2500);
+                    return false;
+                }
+                timer = setTimeout(loopTyping, 100);
+            };
+            loopTyping();
+        }
+
+        function deletingEffect() {
+            let word = words[wordIndex].split("");
+            var loopDeleting = function () {
+                if (word.length > 0) {
+                    word.pop();
+                    document.getElementById('dynamic-text').innerHTML = word.join("");
+                } else {
+                    wordIndex = (wordIndex + 1) % words.length;
+                    typingEffect();
+                    return false;
+                }
+                timer = setTimeout(loopDeleting, 50);
+            };
+            loopDeleting();
+        }
+
+        document.addEventListener("DOMContentLoaded", () => {
+            updateCarousel();
+            typingEffect();
+        });
+    </script>
+}
