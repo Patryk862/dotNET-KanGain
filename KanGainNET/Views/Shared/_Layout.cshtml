@@ -27,6 +27,30 @@
                             <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Prywatność</a>
                         </li>
                     </ul>
+                    <ul class="navbar-nav">
+                        @if (User.Identity.IsAuthenticated)
+                        {
+                            <li class="nav-item">
+                                <span class="nav-link text-dark">Witaj, <b>@User.Identity.Name</b>!</span>
+                            </li>
+                            <li class="nav-item">
+                                <form asp-controller="Konto" asp-action="Wyloguj" method="post" class="form-inline">
+                                    <button type="submit" class="btn btn-outline-danger ms-2">Wyloguj</button>
+                                </form>
+                            </li>
+                        }
+                        else
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-controller="Konto" asp-action="Logowanie">Logowanie</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="btn btn-primary ms-2" asp-controller="Konto" asp-action="Rejestracja">
+                                    Rejestracja
+                                </a>
+                            </li>
+                        }
+                    </ul>
                 </div>
             </div>
         </nav>

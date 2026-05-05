@@ -1,0 +1,65 @@
+@model KanGainNET.Models.ViewModels.RejestracjaViewModel
+
+@{
+    ViewData["Title"] = "Rejestracja w KanGain";
+}
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow">
+                <div class="card-header bg-dark text-white">
+                    <h3 class="mb-0">Załóż nowe konto</h3>
+                </div>
+                <div class="card-body">
+                    <!-- ASP.NET MVC sam wie, żeby wysłać to do akcji [HttpPost] Rejestracja w KontoController -->
+                    <form asp-controller="Konto" asp-action="Rejestracja" method="post">
+                        
+                        <div class="mb-3">
+                            <label asp-for="Email" class="form-label">Adres Email</label>
+                            <input asp-for="Email" class="form-control" />
+                            <span asp-validation-for="Email" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Haslo" class="form-label">Hasło</label>
+                            <input asp-for="Haslo" type="password" class="form-control" />
+                            <span asp-validation-for="Haslo" class="text-danger"></span>
+                        </div>
+                        <div class="mb-3">
+                            <label asp-for="PotwierdzHaslo" class="form-label">Potwierdź Hasło</label>
+                            <input asp-for="PotwierdzHaslo" type="password" class="form-control" />
+                            <span asp-validation-for="PotwierdzHaslo" class="text-danger"></span>
+                        </div>
+
+                        <hr />
+
+                        <div class="mb-3">
+                            <label asp-for="Imie" class="form-label">Imię</label>
+                            <input asp-for="Imie" class="form-control" />
+                            <span asp-validation-for="Imie" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Nazwisko" class="form-label">Nazwisko</label>
+                            <input asp-for="Nazwisko" class="form-control" />
+                            <span asp-validation-for="Nazwisko" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Telefon" class="form-label">Telefon</label>
+                            <input asp-for="Telefon" class="form-control" />
+                            <span asp-validation-for="Telefon" class="text-danger"></span>
+                        </div>
+
+                        <button type="submit" class="btn btn-success w-100">Zarejestruj się</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

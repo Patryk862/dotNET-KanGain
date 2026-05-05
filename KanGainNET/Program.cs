@@ -1,15 +1,34 @@
+using Microsoft.EntityFrameworkCore;
+using KanGainNET.Data;
+using Microsoft.AspNetCore.Authentication.Cookies;
+
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+// 1. Pobierz Connection String z appsettings.json
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") 
+    ?? throw new InvalidOperationException("Nie znaleziono Connection String 'DefaultConnection'.");
+
+// 2. Dodaj Context do kontenera DI
+builder.Services.AddDbContext<SilowniaContext>(options =>
+    options.UseSqlServer(connectionString));
+
+builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+    .AddCookie(options =>
+    {
+        options.LoginPath = "/Konto/Logowanie"; // Gdzie odesłać niezalogowanego
+        options.LogoutPath = "/Konto/Wyloguj";
+        options.Cookie.Name = "KanGainAuth";
+    });
+
+// Dodaj obsługę kontrolerów i widoków (MVC)
 builder.Services.AddControllersWithViews();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+// Konfiguracja potoku HTTP
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
 
@@ -18,6 +37,7 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllerRoute(

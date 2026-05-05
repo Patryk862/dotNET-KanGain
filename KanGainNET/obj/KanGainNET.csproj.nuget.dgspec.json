@@ -1,31 +1,25 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\typek\\source\\repos\\dotNET-KanGain\\KanGainNET\\KanGainNET.csproj": {}
+    "/Users/patrykromanowicz/Documents/GitHub/dotNET-KanGain/KanGainNET/KanGainNET.csproj": {}
   },
   "projects": {
-    "C:\\Users\\typek\\source\\repos\\dotNET-KanGain\\KanGainNET\\KanGainNET.csproj": {
+    "/Users/patrykromanowicz/Documents/GitHub/dotNET-KanGain/KanGainNET/KanGainNET.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\typek\\source\\repos\\dotNET-KanGain\\KanGainNET\\KanGainNET.csproj",
+        "projectUniqueName": "/Users/patrykromanowicz/Documents/GitHub/dotNET-KanGain/KanGainNET/KanGainNET.csproj",
         "projectName": "KanGainNET",
-        "projectPath": "C:\\Users\\typek\\source\\repos\\dotNET-KanGain\\KanGainNET\\KanGainNET.csproj",
-        "packagesPath": "C:\\Users\\typek\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\typek\\source\\repos\\dotNET-KanGain\\KanGainNET\\obj\\",
+        "projectPath": "/Users/patrykromanowicz/Documents/GitHub/dotNET-KanGain/KanGainNET/KanGainNET.csproj",
+        "packagesPath": "/Users/patrykromanowicz/.nuget/packages/",
+        "outputPath": "/Users/patrykromanowicz/Documents/GitHub/dotNET-KanGain/KanGainNET/obj/",
         "projectStyle": "PackageReference",
-        "fallbackFolders": [
-          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
-        ],
         "configFilePaths": [
-          "C:\\Users\\typek\\AppData\\Roaming\\NuGet\\NuGet.Config",
-          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
-          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+          "/Users/patrykromanowicz/.nuget/NuGet/NuGet.Config"
         ],
         "originalTargetFrameworks": [
           "net8.0"
         ],
         "sources": {
-          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
@@ -44,11 +38,29 @@
           "auditLevel": "low",
           "auditMode": "direct"
         },
-        "SdkAnalysisLevel": "10.0.200"
+        "SdkAnalysisLevel": "10.0.100"
       },
       "frameworks": {
         "net8.0": {
           "targetAlias": "net8.0",
+          "dependencies": {
+            "Microsoft.EntityFrameworkCore.Design": {
+              "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[8.0.*, )"
+            },
+            "Microsoft.EntityFrameworkCore.SqlServer": {
+              "target": "Package",
+              "version": "[8.0.*, )"
+            },
+            "Microsoft.EntityFrameworkCore.Tools": {
+              "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[8.0.*, )"
+            }
+          },
           "imports": [
             "net461",
             "net462",
@@ -68,7 +80,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.201/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "/usr/local/share/dotnet/sdk/10.0.100/PortableRuntimeIdentifierGraph.json"
         }
       }
     }
