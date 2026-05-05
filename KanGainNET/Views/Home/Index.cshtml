@@ -4,38 +4,8 @@
     ViewData["Title"] = "Strona Główna";
 }
 
-<style>
-    .hero-section {
-        background: linear-gradient(-45deg, #0a0a0a, #2a0b00, #401000, #0a0a0a);
-        background-size: 400% 400%;
-        animation: gradientHero 10s ease infinite;
-        border-bottom: 3px solid var(--gym-primary);
-        min-height: 500px;
-        display: flex;
-        align-items: center;
-    }
-    @@keyframes gradientHero { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
-    .text-gym { color: var(--gym-primary) !important; }
-    .feature-card { background-color: var(--gym-card-bg); border: 1px solid #333; transition: transform 0.4s ease, border-color 0.4s ease; }
-    .feature-card:hover { transform: translateY(-10px); border-color: var(--gym-primary); }
-    
-    .carousel-container { position: relative; width: 100%; height: 520px; display: flex; justify-content: center; align-items: center; overflow: hidden; margin-top: 2rem; }
-    .pricing-card { position: absolute; width: 300px; background-color: var(--gym-card-bg); border: 1px solid #333; border-radius: 1rem; padding: 2rem; transition: all 0.5s cubic-bezier(0.25, 0.8, 0.25, 1); text-align: center; opacity: 0; z-index: 1; transform: scale(0.5) translateX(0); }
-    
-    .pricing-card.active { opacity: 1; z-index: 3; transform: scale(1.1) translateX(0); border: 2px solid var(--gym-primary); box-shadow: 0 10px 30px rgba(255, 69, 0, 0.3); }
-    .pricing-card.prev { transform: scale(0.85) translateX(-120%); opacity: 0.6; z-index: 2; cursor: pointer; }
-    .pricing-card.next { transform: scale(0.85) translateX(120%); opacity: 0.6; z-index: 2; cursor: pointer; }
-    .pricing-card.prev:hover, .pricing-card.next:hover { opacity: 0.9; }
+<link rel="stylesheet" href="~/css/home.css" asp-append-version="true" />
 
-    .carousel-btn { position: absolute; top: 50%; transform: translateY(-50%); background: rgba(255, 69, 0, 0.2); color: var(--gym-primary); border: 1px solid var(--gym-primary); border-radius: 50%; width: 50px; height: 50px; font-size: 1.5rem; z-index: 10; cursor: pointer; transition: background 0.3s; }
-    .carousel-btn:hover { background: var(--gym-primary); color: white; }
-    .btn-prev { left: 10%; }
-    .btn-next { right: 10%; }
-    .typing-cursor { display: inline-block; width: 4px; background-color: var(--gym-primary); animation: blink 0.8s infinite; }
-    @@keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
-</style>
-
-<!-- SEKCJA 1: HERO -->
 <div class="hero-section text-center shadow-lg position-relative w-100 mb-5">
     <div class="container py-5 position-relative z-index-1">
         <h1 class="display-3 fw-bold mb-3 text-uppercase text-white">
@@ -60,7 +30,6 @@
     </div>
 </div>
 
-<!-- SEKCJA 2: CENNIK (Zaciągany z bazy danych) -->
 <div class="py-5 my-5">
     <div class="container text-center">
         <h2 class="fw-bold text-uppercase mb-2 text-white">Wybierz Swój <span class="text-gym">Arsenał</span></h2>
@@ -75,7 +44,6 @@
                 <div class="pricing-card" data-index="@i">
                     <h4 class="fw-bold text-secondary text-uppercase">@karnet.Nazwa</h4>
                     
-                    <!-- Formatuje kwotę odcinając zera po przecinku (np. z 20.00 na 20) -->
                     <h2 class="my-4 text-white">@karnet.Cena.ToString("0") <small class="text-muted fs-6">zł</small></h2>
                     
                     <ul class="list-unstyled text-start mb-4 text-secondary">
@@ -102,7 +70,6 @@
     </div>
 </div>
 
-<!-- SEKCJA 3: DLACZEGO MY -->
 <div class="container mb-5 pb-5 mt-5">
     <div class="row g-4 text-center">
         <div class="col-md-4">
@@ -136,89 +103,5 @@
 </div>
 
 @section Scripts {
-    <script>
-        const cards = document.querySelectorAll('.pricing-card');
-        const totalCards = cards.length;
-        // Dynamiczne wyliczenie środkowego indeksu niezależnie od tego ile wypluje baza (u Ciebie to 6 sztuk, wiec zaczniemy od indeksu 2)
-        let currentIndex = Math.floor(totalCards / 2) - 1; 
-
-        function updateCarousel() {
-            const prevIndex = (currentIndex - 1 + totalCards) % totalCards;
-            const nextIndex = (currentIndex + 1) % totalCards;
-
-            cards.forEach((card, index) => {
-                card.classList.remove('active', 'prev', 'next');
-                const btn = card.querySelector('.dynamic-btn');
-                btn.classList.remove('btn-gym', 'btn-outline-light');
-
-                if (index === currentIndex) {
-                    card.classList.add('active');
-                    btn.classList.add('btn-gym');
-                } 
-                else if (index === prevIndex) {
-                    card.classList.add('prev');
-                    btn.classList.add('btn-outline-light');
-                } 
-                else if (index === nextIndex) {
-                    card.classList.add('next');
-                    btn.classList.add('btn-outline-light');
-                } else {
-                    btn.classList.add('btn-outline-light');
-                }
-            });
-        }
-
-        function moveCarousel(step) {
-            currentIndex = (currentIndex + step + totalCards) % totalCards;
-            updateCarousel();
-        }
-
-        cards.forEach((card, index) => {
-            card.addEventListener('click', () => {
-                if (card.classList.contains('prev') || card.classList.contains('next')) {
-                    currentIndex = index;
-                    updateCarousel();
-                }
-            });
-        });
-
-        const words = ["granice", "swoje słabości", "oczekiwania", "własne limity"];
-        let wordIndex = 0;
-        let timer;
-
-        function typingEffect() {
-            let word = words[wordIndex].split("");
-            var loopTyping = function () {
-                if (word.length > 0) {
-                    document.getElementById('dynamic-text').innerHTML += word.shift();
-                } else {
-                    setTimeout(deletingEffect, 2500);
-                    return false;
-                }
-                timer = setTimeout(loopTyping, 100);
-            };
-            loopTyping();
-        }
-
-        function deletingEffect() {
-            let word = words[wordIndex].split("");
-            var loopDeleting = function () {
-                if (word.length > 0) {
-                    word.pop();
-                    document.getElementById('dynamic-text').innerHTML = word.join("");
-                } else {
-                    wordIndex = (wordIndex + 1) % words.length;
-                    typingEffect();
-                    return false;
-                }
-                timer = setTimeout(loopDeleting, 50);
-            };
-            loopDeleting();
-        }
-
-        document.addEventListener("DOMContentLoaded", () => {
-            updateCarousel();
-            typingEffect();
-        });
-    </script>
+    <script src="~/js/home.js" asp-append-version="true"></script>
 }

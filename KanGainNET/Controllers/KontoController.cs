@@ -5,9 +5,9 @@ using KanGainNET.Models.ViewModels;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Cryptography;
 using System.Text;
-using System.Security.Claims; // DODANE
-using Microsoft.AspNetCore.Authentication; // DODANE
-using Microsoft.AspNetCore.Authentication.Cookies; // DODANE
+using System.Security.Claims;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
 
 namespace KanGainNET.Controllers
 {
