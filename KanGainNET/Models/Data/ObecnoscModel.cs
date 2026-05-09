@@ -2,10 +2,13 @@ namespace KanGainNET.Models
 {
     public class Obecnosc {
         public int Id { get; set; }
-        public DateTime DataWejscia { get; set; }
-        public DateTime? DataWyjscia { get; set; }
-        
-        public int UzytkownikId { get; set; }
-        public virtual Uzytkownik Uzytkownik { get; set; }
+
+        public DateTime Data { get; set; }
+
+        public string Typ { get; set; } = null!;
+
+        public int KartaRFIDId { get; set; }
+
+        public KartaRFID KartaRFID { get; set; } = null!;
     }
 }

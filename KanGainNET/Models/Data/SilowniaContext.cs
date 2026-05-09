@@ -24,6 +24,7 @@ namespace KanGainNET.Data
         public DbSet<Cwiczenie> Cwiczenia { get; set; }
         public DbSet<PlanTreningowy> PlanyTreningowe { get; set; }
         public DbSet<PomiarCiala> PomiaryCiala { get; set; }
+        public DbSet<KartaRFID> KartyRFID { get; set; }
         public DbSet<Obecnosc> Obecnosci { get; set; }
         public DbSet<Sprzet> Sprzet { get; set; }
 

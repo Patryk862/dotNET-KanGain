@@ -9,8 +9,7 @@ var connectionString = builder.Configuration.GetConnectionString("DefaultConnect
     ?? throw new InvalidOperationException("Nie znaleziono Connection String 'DefaultConnection'.");
 
 // 2. Dodaj Context do kontenera DI
-builder.Services.AddDbContext<SilowniaContext>(options =>
-    options.UseSqlServer(connectionString));
+builder.Services.AddDbContext<SilowniaContext>(options => options.UseSqlServer(connectionString));
 
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(options =>
@@ -23,7 +22,11 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
 // Dodaj obsługę kontrolerów i widoków (MVC)
 builder.Services.AddControllersWithViews();
 
+builder.Services.AddSingleton<RFIDReaderService>();
+
 var app = builder.Build();
+
+app.Services.GetRequiredService<RFIDReaderService>();
 
 // Konfiguracja potoku HTTP
 if (!app.Environment.IsDevelopment())
