@@ -11,11 +11,11 @@ public class RFIDReaderService
     {
         _scopeFactory = scopeFactory;
 
-        _serialPort = new SerialPort("COM6", 115200);
+        //_serialPort = new SerialPort("COM6", 115200);
 
-        _serialPort.DataReceived += SerialPort_DataReceived;
+        //_serialPort.DataReceived += SerialPort_DataReceived;
 
-        _serialPort.Open();
+        //_serialPort.Open();
     }
 
     private void SerialPort_DataReceived(object sender, SerialDataReceivedEventArgs e)
