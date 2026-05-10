@@ -18,19 +18,19 @@
         <div class="d-flex justify-content-center gap-3 mt-4">
             @if (!User.Identity.IsAuthenticated)
             {
-                <a asp-controller="Konto" asp-action="Rejestracja" class="btn btn-gym btn-lg px-5 rounded-pill">Dołącz do stada</a>
+                <a href="#sekcja-karnetow" class="btn btn-gym btn-lg px-5 rounded-pill">Dołącz do stada</a>
                 <a asp-controller="Konto" asp-action="Logowanie" class="btn btn-outline-light btn-lg px-5 rounded-pill">Zaloguj się</a>
             }
             else
             {
-                <a asp-controller="Karnety" asp-action="Kup" class="btn btn-gym btn-lg px-5 rounded-pill">Kup karnet</a>
+                <a href="#sekcja-karnetow" class="btn btn-gym btn-lg px-5 rounded-pill">Kup karnet</a>
                 <a asp-controller="Grafik" asp-action="Zajecia" class="btn btn-outline-light btn-lg px-5 rounded-pill">Grafik zajęć</a>
             }
         </div>
     </div>
 </div>
 
-<div class="py-5 my-5">
+<div id="sekcja-karnetow" class="py-5 my-5">
     <div class="container text-center">
         <h2 class="fw-bold text-uppercase mb-2 text-white">Wybierz Swój <span class="text-gym">Arsenał</span></h2>
         <p class="text-secondary">Wybierz plan dopasowany do Twoich potrzeb.</p>
@@ -60,7 +60,20 @@
                             <li>✔️ Wszystkie zajęcia grupowe</li>
                         }
                     </ul>
-                    <a href="#" class="btn w-100 rounded-pill fw-bold dynamic-btn">Wybierz</a>
+                    @if (User.Identity.IsAuthenticated)
+                    {
+                        <form asp-controller="Karnety" asp-action="KupKarnet" asp-route-id="@karnet.Id" method="post">
+                            <button type="submit" class="btn w-100 rounded-pill fw-bold dynamic-btn">
+                                Kupuję @karnet.Nazwa
+                            </button>
+                        </form>
+                    }
+                    else
+                    {
+                        <a asp-controller="Konto" asp-action="Logowanie" class="btn w-100 rounded-pill fw-bold dynamic-btn">
+                            Zaloguj się, by kupić
+                        </a>
+                    }
                 </div>
                 i++;
             }
