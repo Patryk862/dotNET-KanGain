@@ -39,6 +39,11 @@
                         @if (User.Identity.IsAuthenticated)
                         {
                             <li class="nav-item">
+                                <a class="nav-link nav-my-passes" asp-controller="Home" asp-action="LokalizacjeMapa">
+                                    Nasze Kluby
+                                </a>
+                            </li>
+                            <li class="nav-item">
                                 <a class="nav-link nav-my-passes" asp-controller="Karnety" asp-action="MojeKarnety">
                                     Moje Karnety
                                 </a>

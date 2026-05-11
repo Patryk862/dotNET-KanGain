@@ -93,3 +93,54 @@
 html {
     scroll-behavior: smooth;
 }
+
+/* LOKALIZACJA KLUBÓW */
+.map-page-container {
+    display: flex;
+    width: 100%;
+    height: calc(100vh - 80px); 
+}
+
+.side-menu {
+    width: 350px;
+    height: 100%;
+    overflow-y: auto;
+}
+
+.side-menu h3 {
+    padding: 20px;
+    margin: 0;
+    font-weight: 800;
+    font-size: 25px;
+    border-bottom: 1px solid #222;
+}
+
+.club-card {
+    padding: 20px;
+    border-bottom: 1px solid #1a1a1a;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.club-card:hover {
+    border-left: 4px solid #ff4500;
+}
+
+.club-card h4 {
+    color: #ff4500;
+    font-size: 20px;
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+.club-card p {
+    color: #888;
+    margin: 0;
+    font-size: 15px;
+}
+
+#map {
+    flex-grow: 1;
+    height: 100%;
+    background: black;
+}
