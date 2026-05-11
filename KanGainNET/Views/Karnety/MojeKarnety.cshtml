@@ -1,0 +1,80 @@
+﻿@model IEnumerable<KanGainNET.Models.Subskrypcja>
+
+@{
+    ViewData["Title"] = "Moje Karnety";
+}
+
+<div class="container py-5 mt-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="fw-bold text-uppercase text-white">
+            Twoja <span class="text-gym">Kolekcja Karnetów</span>
+        </h2>
+        <a asp-action="Index" asp-controller="Home" class="btn btn-gym rounded-pill px-4">Kup kolejny</a>
+    </div>
+
+    <div class="card bg-dark border-secondary shadow-lg overflow-hidden" style="border-radius: 15px;">
+        <div class="table-responsive">
+            <table class="table table-dark table-hover mb-0 align-middle">
+                <thead class="text-gym text-uppercase border-secondary" style="font-size: 0.85rem; letter-spacing: 1px;">
+                    <tr>
+                        <th class="ps-4 py-3">Rodzaj</th>
+                        <th>Ważność (Od - Do)</th>
+                        <th>Cena</th>
+                        <th class="text-center">Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model == null || !Model.Any())
+                    {
+                        <tr>
+                            <td colspan="4" class="text-center py-5 text-secondary italic">
+                                Nie masz jeszcze żadnych karnetów. Czas ruszyć na trening!
+                            </td>
+                        </tr>
+                    }
+                    else
+                    {
+                        @foreach (var sub in Model)
+                        {
+                            // Logika sprawdzania statusu na podstawie dat
+                            var teraz = DateTime.Now;
+                            string statusTekst;
+                            string badgeKlasa;
+
+                            if (sub.DataStartu > teraz)
+                            {
+                                statusTekst = "OCZEKUJĄCY";
+                                badgeKlasa = "bg-info text-dark";
+                            }
+                            else if (sub.DataKonca < teraz)
+                            {
+                                statusTekst = "WYGASŁY";
+                                badgeKlasa = "bg-danger";
+                            }
+                            else
+                            {
+                                statusTekst = "AKTYWNY";
+                                badgeKlasa = "bg-success";
+                            }
+
+                            <tr>
+                                <td class="ps-4 fw-bold text-white">@sub.TypKarnetu?.Nazwa</td>
+                                <td class="text-secondary">
+                                    @sub.DataStartu.ToString("dd.MM.yyyy") — @sub.DataKonca.ToString("dd.MM.yyyy")
+                                </td>
+                                <td class="fw-bold text-gym">
+                                    @sub.TypKarnetu?.Cena.ToString("0.00") zł
+                                </td>
+                                <td class="text-center">
+                                    <span class="badge rounded-pill @badgeKlasa px-3 py-2" style="min-width: 100px;">
+                                        @statusTekst
+                                    </span>
+                                </td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

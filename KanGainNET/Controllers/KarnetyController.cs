@@ -1,7 +1,8 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using KanGainNET.Data;
-using Stripe.Checkout;
+﻿using KanGainNET.Data;
+using KanGainNET.Models;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Stripe.Checkout;
 
 namespace KanGainNET.Controllers
 {
@@ -40,7 +41,7 @@ namespace KanGainNET.Controllers
                   },
                 },
                 Mode = "payment",
-                SuccessUrl = domain + "/",
+                SuccessUrl = domain + "/Karnety/Sukces?karnetId=" + id,
                 CancelUrl = domain + "/",
             };
 
@@ -49,6 +50,78 @@ namespace KanGainNET.Controllers
 
             Response.Headers.Add("Location", session.Url);
             return new StatusCodeResult(303);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Sukces(int karnetId)
+        {
+            var typKarnetu = await _context.TypyKarnetow.FindAsync(karnetId);
+            if (typKarnetu == null) return RedirectToAction("Index", "Home");
+
+            var uzytkownik = await _context.Uzytkownicy
+                .Include(u => u.Profil)
+                .FirstOrDefaultAsync(u => u.Email == User.Identity.Name || u.Profil.Imie == User.Identity.Name);
+
+            if (uzytkownik != null)
+            {
+                var ostatniKarnet = await _context.Subskrypcje
+                    .Where(s => s.UzytkownikId == uzytkownik.Id)
+                    .OrderByDescending(s => s.DataKonca)
+                    .FirstOrDefaultAsync();
+
+                DateTime dataStartuNowego;
+
+                if (ostatniKarnet != null && ostatniKarnet.DataKonca > DateTime.Now)
+                {
+                    dataStartuNowego = ostatniKarnet.DataKonca;
+                }
+                else
+                {
+                    dataStartuNowego = DateTime.Now;
+                }
+
+                var nowaSubskrypcja = new Subskrypcja
+                {
+                    DataStartu = dataStartuNowego,
+                    DataKonca = dataStartuNowego.AddDays(typKarnetu.CzasTrwaniaDni),
+                    UzytkownikId = uzytkownik.Id,
+                    TypKarnetuId = typKarnetu.Id
+                };
+
+                _context.Subskrypcje.Add(nowaSubskrypcja);
+                await _context.SaveChangesAsync();
+
+                var nowaPlatnosc = new Platnosc
+                {
+                    Kwota = typKarnetu.Cena,
+                    DataPlatnosci = DateTime.Now,
+                    Metoda = "Stripe",
+                    SubskrypcjaId = nowaSubskrypcja.Id
+                };
+
+                _context.Platnosci.Add(nowaPlatnosc);
+                await _context.SaveChangesAsync();
+            }
+
+            return RedirectToAction("MojeKarnety");
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> MojeKarnety()
+        {
+            var uzytkownik = await _context.Uzytkownicy
+                .FirstOrDefaultAsync(u => u.Email == User.Identity.Name || u.Profil.Imie == User.Identity.Name);
+
+            if (uzytkownik == null) return RedirectToAction("Logowanie", "Konto");
+
+            var subskrypcje = await _context.Subskrypcje
+                .Where(s => s.UzytkownikId == uzytkownik.Id)
+                .Include(s => s.TypKarnetu)
+                .Include(s => s.Platnosci) 
+                .OrderByDescending(s => s.DataStartu)
+                .ToListAsync();
+
+            return View(subskrypcje);
         }
     }
 }
