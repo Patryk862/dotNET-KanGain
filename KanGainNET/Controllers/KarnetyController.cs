@@ -59,15 +59,31 @@ namespace KanGainNET.Controllers
             if (typKarnetu == null) return RedirectToAction("Index", "Home");
 
             var uzytkownik = await _context.Uzytkownicy
-                .Include(u => u.Profil) 
+                .Include(u => u.Profil)
                 .FirstOrDefaultAsync(u => u.Email == User.Identity.Name || u.Profil.Imie == User.Identity.Name);
 
             if (uzytkownik != null)
             {
+                var ostatniKarnet = await _context.Subskrypcje
+                    .Where(s => s.UzytkownikId == uzytkownik.Id)
+                    .OrderByDescending(s => s.DataKonca)
+                    .FirstOrDefaultAsync();
+
+                DateTime dataStartuNowego;
+
+                if (ostatniKarnet != null && ostatniKarnet.DataKonca > DateTime.Now)
+                {
+                    dataStartuNowego = ostatniKarnet.DataKonca;
+                }
+                else
+                {
+                    dataStartuNowego = DateTime.Now;
+                }
+
                 var nowaSubskrypcja = new Subskrypcja
                 {
-                    DataStartu = DateTime.Now,
-                    DataKonca = DateTime.Now.AddDays(typKarnetu.CzasTrwaniaDni),
+                    DataStartu = dataStartuNowego,
+                    DataKonca = dataStartuNowego.AddDays(typKarnetu.CzasTrwaniaDni),
                     UzytkownikId = uzytkownik.Id,
                     TypKarnetuId = typKarnetu.Id
                 };
@@ -87,7 +103,25 @@ namespace KanGainNET.Controllers
                 await _context.SaveChangesAsync();
             }
 
-            return RedirectToAction("Index", "Home");
+            return RedirectToAction("MojeKarnety");
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> MojeKarnety()
+        {
+            var uzytkownik = await _context.Uzytkownicy
+                .FirstOrDefaultAsync(u => u.Email == User.Identity.Name || u.Profil.Imie == User.Identity.Name);
+
+            if (uzytkownik == null) return RedirectToAction("Logowanie", "Konto");
+
+            var subskrypcje = await _context.Subskrypcje
+                .Where(s => s.UzytkownikId == uzytkownik.Id)
+                .Include(s => s.TypKarnetu)
+                .Include(s => s.Platnosci) 
+                .OrderByDescending(s => s.DataStartu)
+                .ToListAsync();
+
+            return View(subskrypcje);
         }
     }
 }
