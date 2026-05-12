@@ -1,0 +1,54 @@
+@model KanGainNET.Models.ViewModels.LogowanieViewModel
+
+@{
+    ViewData["Title"] = "Logowanie";
+}
+
+<link rel="stylesheet" href="~/css/auth.css" asp-append-version="true" />
+
+<div class="container mt-5 pt-4 mb-5">
+    <div class="row justify-content-center">
+        <div class="col-md-5">
+
+            @if (TempData["Sukces"] != null)
+            {
+                <div class="alert alert-success bg-dark text-success border-success fw-bold text-center">
+                    @TempData["Sukces"]
+                </div>
+            }
+
+            <div class="auth-card">
+                <div class="auth-header p-4 text-center">
+                    <h3 class="mb-0 text-white text-uppercase fw-bold">Zaloguj się do <span style="color: var(--gym-primary)">Stada</span></h3>
+                </div>
+                <div class="card-body p-4">
+                    <form asp-controller="Konto" asp-action="Logowanie" method="post">
+                        
+                        <div asp-validation-summary="ModelOnly" class="text-danger mb-3 fw-bold"></div>
+
+                        <div class="mb-4">
+                            <label asp-for="Email" class="form-label text-secondary fw-bold text-uppercase small">Adres Email</label>
+                            <input asp-for="Email" class="form-control form-control-gym" placeholder="np. jan@kowalski.pl" />
+                            <span asp-validation-for="Email" class="text-danger small mt-1 d-block"></span>
+                        </div>
+
+                        <div class="mb-4">
+                            <label asp-for="Haslo" class="form-label text-secondary fw-bold text-uppercase small">Hasło</label>
+                            <input asp-for="Haslo" type="password" class="form-control form-control-gym" placeholder="••••••••" />
+                            <span asp-validation-for="Haslo" class="text-danger small mt-1 d-block"></span>
+                        </div>
+
+                        <button type="submit" class="btn btn-gym w-100 py-3 rounded-pill mt-2">WEJDŹ NA TRENING</button>
+                    </form>
+                </div>
+                <div class="card-footer border-0 bg-transparent text-center pb-4 text-secondary">
+                    Nie masz jeszcze konta? <a asp-controller="Konto" asp-action="Rejestracja" class="link-gym">Zarejestruj się</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

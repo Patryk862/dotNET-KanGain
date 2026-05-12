@@ -1,0 +1,75 @@
+@model KanGainNET.Models.ViewModels.RejestracjaViewModel
+
+@{
+    ViewData["Title"] = "Rejestracja";
+}
+
+<link rel="stylesheet" href="~/css/auth.css" asp-append-version="true" />
+
+<div class="container mt-5 pt-3 mb-5">
+    <div class="row justify-content-center">
+        <div class="col-md-7">
+            <div class="auth-card">
+                <div class="auth-header p-4 text-center">
+                    <h3 class="mb-0 text-white text-uppercase fw-bold">Dołącz do <span style="color: var(--gym-primary)">KanGain</span></h3>
+                    <p class="text-secondary mt-2 mb-0">Wypełnij formularz i rozpocznij swoją transformację.</p>
+                </div>
+                <div class="card-body p-4 p-md-5">
+                    <form asp-controller="Konto" asp-action="Rejestracja" method="post">
+                        
+                        <h5 class="text-white mb-3 border-bottom border-secondary pb-2">Dane logowania</h5>
+                        
+                        <div class="mb-3">
+                            <label asp-for="Email" class="form-label text-secondary fw-bold text-uppercase small">Adres Email</label>
+                            <input asp-for="Email" class="form-control form-control-gym" />
+                            <span asp-validation-for="Email" class="text-danger small"></span>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="Haslo" class="form-label text-secondary fw-bold text-uppercase small">Hasło</label>
+                                <input asp-for="Haslo" type="password" class="form-control form-control-gym" />
+                                <span asp-validation-for="Haslo" class="text-danger small"></span>
+                            </div>
+                            <div class="col-md-6 mb-4">
+                                <label asp-for="PotwierdzHaslo" class="form-label text-secondary fw-bold text-uppercase small">Potwierdź Hasło</label>
+                                <input asp-for="PotwierdzHaslo" type="password" class="form-control form-control-gym" />
+                                <span asp-validation-for="PotwierdzHaslo" class="text-danger small"></span>
+                            </div>
+                        </div>
+
+                        <h5 class="text-white mb-3 border-bottom border-secondary pb-2 mt-4">Dane osobowe</h5>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="Imie" class="form-label text-secondary fw-bold text-uppercase small">Imię</label>
+                                <input asp-for="Imie" class="form-control form-control-gym" />
+                                <span asp-validation-for="Imie" class="text-danger small"></span>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="Nazwisko" class="form-label text-secondary fw-bold text-uppercase small">Nazwisko</label>
+                                <input asp-for="Nazwisko" class="form-control form-control-gym" />
+                                <span asp-validation-for="Nazwisko" class="text-danger small"></span>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label asp-for="Telefon" class="form-label text-secondary fw-bold text-uppercase small">Telefon (9 cyfr)</label>
+                            <input asp-for="Telefon" class="form-control form-control-gym" placeholder="np. 123456789" />
+                            <span asp-validation-for="Telefon" class="text-danger small"></span>
+                        </div>
+
+                        <button type="submit" class="btn btn-gym w-100 py-3 rounded-pill mt-3 fs-5">ZAREJESTRUJ SIĘ</button>
+                    </form>
+                </div>
+                <div class="card-footer border-0 bg-transparent text-center pb-4 text-secondary">
+                    Masz już konto? <a asp-controller="Konto" asp-action="Logowanie" class="link-gym">Zaloguj się</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

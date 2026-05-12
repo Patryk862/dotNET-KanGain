@@ -1,0 +1,40 @@
+.auth-card {
+    background-color: var(--gym-card-bg);
+    border: 1px solid #333;
+    border-radius: 1rem;
+    box-shadow: 0 15px 35px rgba(0,0,0,0.6);
+}
+.auth-header {
+    border-bottom: 1px solid #333;
+}
+
+/* Ciemne pola tekstowe */
+.form-control-gym {
+    background-color: #121212;
+    border: 1px solid #444;
+    color: #fff;
+    border-radius: 0.5rem;
+    padding: 0.75rem 1rem;
+    transition: all 0.3s ease;
+}
+.form-control-gym:focus {
+    background-color: #1a1a1a;
+    border-color: var(--gym-primary);
+    color: #fff;
+    box-shadow: 0 0 0 0.25rem rgba(255, 69, 0, 0.25);
+}
+.form-control-gym::placeholder {
+    color: #666;
+}
+
+/* Interaktywne linki wewnątrz formularzy */
+.link-gym {
+    color: var(--gym-primary);
+    text-decoration: none;
+    font-weight: 600;
+    transition: color 0.3s;
+}
+.link-gym:hover {
+    color: var(--gym-primary-hover);
+    text-decoration: underline;
+}

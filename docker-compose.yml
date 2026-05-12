@@ -1,0 +1,16 @@
+version: '3.8'
+
+services:
+  db-silownia:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: kangain-baza-silownia
+    environment:
+      - ACCEPT_EULA=Y
+      - MSSQL_SA_PASSWORD=SilneHaslo_123!
+    ports:
+      - "1435:1433"
+    volumes:
+      - dane_silownia:/var/opt/mssql
+
+volumes:
+  dane_silownia:
