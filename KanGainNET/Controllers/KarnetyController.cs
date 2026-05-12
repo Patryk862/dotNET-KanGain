@@ -3,9 +3,16 @@ using KanGainNET.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Stripe.Checkout;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
 
 namespace KanGainNET.Controllers
 {
+    [Authorize]
     public class KarnetyController : Controller
     {
         private readonly SilowniaContext _context;
@@ -21,7 +28,9 @@ namespace KanGainNET.Controllers
             var karnet = await _context.TypyKarnetow.FirstOrDefaultAsync(k => k.Id == id);
             if (karnet == null) return NotFound();
 
-            var domain = "https://localhost:7035";
+            var successUrl = Url.Action("Sukces", "Karnety", new { karnetId = id }, Request.Scheme);
+            var cancelUrl = Url.Action("Index", "Home", null, Request.Scheme);
+
             var options = new SessionCreateOptions
             {
                 LineItems = new List<SessionLineItemOptions>
@@ -41,15 +50,14 @@ namespace KanGainNET.Controllers
                   },
                 },
                 Mode = "payment",
-                SuccessUrl = domain + "/Karnety/Sukces?karnetId=" + id,
-                CancelUrl = domain + "/",
+                SuccessUrl = successUrl,
+                CancelUrl = cancelUrl,
             };
 
             var service = new SessionService();
             Session session = service.Create(options);
 
-            Response.Headers.Add("Location", session.Url);
-            return new StatusCodeResult(303);
+            return Redirect(session.Url);
         }
 
         [HttpGet]
@@ -58,9 +66,13 @@ namespace KanGainNET.Controllers
             var typKarnetu = await _context.TypyKarnetow.FindAsync(karnetId);
             if (typKarnetu == null) return RedirectToAction("Index", "Home");
 
+            // POBIERANIE UŻYTKOWNIKA (Tryb Rozszerzony)
+            var currentName = User.Identity?.Name;
             var uzytkownik = await _context.Uzytkownicy
                 .Include(u => u.Profil)
-                .FirstOrDefaultAsync(u => u.Email == User.Identity.Name || u.Profil.Imie == User.Identity.Name);
+                .FirstOrDefaultAsync(u => u.Email == currentName || 
+                                         u.Id.ToString() == currentName || 
+                                         u.Profil.Imie == currentName);
 
             if (uzytkownik != null)
             {
@@ -69,16 +81,9 @@ namespace KanGainNET.Controllers
                     .OrderByDescending(s => s.DataKonca)
                     .FirstOrDefaultAsync();
 
-                DateTime dataStartuNowego;
-
-                if (ostatniKarnet != null && ostatniKarnet.DataKonca > DateTime.Now)
-                {
-                    dataStartuNowego = ostatniKarnet.DataKonca;
-                }
-                else
-                {
-                    dataStartuNowego = DateTime.Now;
-                }
+                DateTime dataStartuNowego = (ostatniKarnet != null && ostatniKarnet.DataKonca > DateTime.Now) 
+                    ? ostatniKarnet.DataKonca 
+                    : DateTime.Now;
 
                 var nowaSubskrypcja = new Subskrypcja
                 {
@@ -91,15 +96,13 @@ namespace KanGainNET.Controllers
                 _context.Subskrypcje.Add(nowaSubskrypcja);
                 await _context.SaveChangesAsync();
 
-                var nowaPlatnosc = new Platnosc
+                _context.Platnosci.Add(new Platnosc
                 {
                     Kwota = typKarnetu.Cena,
                     DataPlatnosci = DateTime.Now,
                     Metoda = "Stripe",
                     SubskrypcjaId = nowaSubskrypcja.Id
-                };
-
-                _context.Platnosci.Add(nowaPlatnosc);
+                });
                 await _context.SaveChangesAsync();
             }
 
@@ -109,10 +112,23 @@ namespace KanGainNET.Controllers
         [HttpGet]
         public async Task<IActionResult> MojeKarnety()
         {
-            var uzytkownik = await _context.Uzytkownicy
-                .FirstOrDefaultAsync(u => u.Email == User.Identity.Name || u.Profil.Imie == User.Identity.Name);
+            var currentName = User.Identity?.Name;
+            
+            if (string.IsNullOrEmpty(currentName)) 
+                return RedirectToAction("Logowanie", "Konto");
 
-            if (uzytkownik == null) return RedirectToAction("Logowanie", "Konto");
+            // SZUKAMY: po emailu LUB po imieniu z profilu (bo to masz w Identity)
+            var uzytkownik = await _context.Uzytkownicy
+                .Include(u => u.Profil)
+                .FirstOrDefaultAsync(u => u.Email == currentName || 
+                                         u.Id.ToString() == currentName || 
+                                         u.Profil.Imie == currentName);
+
+            if (uzytkownik == null) 
+            {
+                // Jeśli nie znaleźliśmy użytkownika, wracamy do bazy (tu mógł być błąd przekierowania)
+                return RedirectToAction("Index", "Home");
+            }
 
             var subskrypcje = await _context.Subskrypcje
                 .Where(s => s.UzytkownikId == uzytkownik.Id)
