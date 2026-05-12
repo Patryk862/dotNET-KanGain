@@ -5,8 +5,8 @@ namespace KanGainNET.Models
         public string Nazwa { get; set; }
         public string Adres { get; set; }
         public string Miasto { get; set; }
-        public decimal? Szerokosc { get; set; }
-        public decimal? Dlugosc { get; set; }
+        public double Dlugosc { get; set; }
+        public double Szerokosc { get; set; }
 
         public virtual ICollection<Sala> Sale { get; set; }
         public virtual ICollection<Sprzet> Sprzety { get; set; }
