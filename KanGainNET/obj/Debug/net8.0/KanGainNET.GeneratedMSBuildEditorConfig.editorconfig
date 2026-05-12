@@ -1,0 +1,75 @@
+is_global = true
+build_property.TargetFramework = net8.0
+build_property.TargetFrameworkIdentifier = .NETCoreApp
+build_property.TargetFrameworkVersion = v8.0
+build_property.TargetPlatformMinVersion = 
+build_property.UsingMicrosoftNETSdkWeb = true
+build_property.ProjectTypeGuids = 
+build_property.InvariantGlobalization = 
+build_property.PlatformNeutralAssembly = 
+build_property.EnforceExtendedAnalyzerRules = 
+build_property._SupportedPlatformList = Linux,macOS,Windows
+build_property.RootNamespace = KanGainNET
+build_property.RootNamespace = KanGainNET
+build_property.ProjectDir = /Users/patrykromanowicz/Documents/GitHub/dotNET-KanGain/KanGainNET/
+build_property.EnableComHosting = 
+build_property.EnableGeneratedComInterfaceComImportInterop = 
+build_property.RazorLangVersion = 8.0
+build_property.SupportLocalizedComponentNames = 
+build_property.GenerateRazorMetadataSourceChecksumAttributes = 
+build_property.MSBuildProjectDirectory = /Users/patrykromanowicz/Documents/GitHub/dotNET-KanGain/KanGainNET
+build_property._RazorSourceGeneratorDebug = 
+build_property.EffectiveAnalysisLevelStyle = 8.0
+build_property.EnableCodeStyleSeverity = 
+
+[/Users/patrykromanowicz/Documents/GitHub/dotNET-KanGain/KanGainNET/Views/Admin/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvQWRtaW4vSW5kZXguY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/patrykromanowicz/Documents/GitHub/dotNET-KanGain/KanGainNET/Views/Home/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvSG9tZS9JbmRleC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/patrykromanowicz/Documents/GitHub/dotNET-KanGain/KanGainNET/Views/Home/LokalizacjeMapa.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvSG9tZS9Mb2thbGl6YWNqZU1hcGEuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/patrykromanowicz/Documents/GitHub/dotNET-KanGain/KanGainNET/Views/Home/Privacy.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvSG9tZS9Qcml2YWN5LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/patrykromanowicz/Documents/GitHub/dotNET-KanGain/KanGainNET/Views/Karnety/MojeKarnety.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvS2FybmV0eS9Nb2plS2FybmV0eS5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/patrykromanowicz/Documents/GitHub/dotNET-KanGain/KanGainNET/Views/Konto/Logowanie.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvS29udG8vTG9nb3dhbmllLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/patrykromanowicz/Documents/GitHub/dotNET-KanGain/KanGainNET/Views/Konto/Rejestracja.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvS29udG8vUmVqZXN0cmFjamEuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/patrykromanowicz/Documents/GitHub/dotNET-KanGain/KanGainNET/Views/Pracownik/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvUHJhY293bmlrL0luZGV4LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/patrykromanowicz/Documents/GitHub/dotNET-KanGain/KanGainNET/Views/Shared/Error.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvU2hhcmVkL0Vycm9yLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/patrykromanowicz/Documents/GitHub/dotNET-KanGain/KanGainNET/Views/Shared/_ValidationScriptsPartial.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvU2hhcmVkL19WYWxpZGF0aW9uU2NyaXB0c1BhcnRpYWwuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/patrykromanowicz/Documents/GitHub/dotNET-KanGain/KanGainNET/Views/_ViewImports.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvX1ZpZXdJbXBvcnRzLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/patrykromanowicz/Documents/GitHub/dotNET-KanGain/KanGainNET/Views/_ViewStart.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvX1ZpZXdTdGFydC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/patrykromanowicz/Documents/GitHub/dotNET-KanGain/KanGainNET/Views/Shared/_Layout.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvU2hhcmVkL19MYXlvdXQuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = b-pxs0v0wheg
