@@ -22,12 +22,12 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
 // Dodaj obsługę kontrolerów i widoków (MVC)
 builder.Services.AddControllersWithViews();
 
-builder.Services.AddSingleton<RFIDReaderService>();
+//builder.Services.AddSingleton<RFIDReaderService>();
 Stripe.StripeConfiguration.ApiKey = builder.Configuration.GetSection("Stripe:SecretKey").Get<string>();
 
 var app = builder.Build();
 
-app.Services.GetRequiredService<RFIDReaderService>();
+//app.Services.GetRequiredService<RFIDReaderService>();
 
 // Konfiguracja potoku HTTP
 if (!app.Environment.IsDevelopment())
