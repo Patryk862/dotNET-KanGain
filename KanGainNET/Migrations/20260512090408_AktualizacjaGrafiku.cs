@@ -16,17 +16,17 @@ namespace KanGainNET.Migrations
                 table: "Grafiki",
                 newName: "DataStart");
 
-            // migrationBuilder.AddColumn<decimal>(
-            //     name: "Dlugosc",
-            //     table: "Lokalizacje",
-            //     type: "decimal(18,2)",
-            //     nullable: true);
+            migrationBuilder.AddColumn<decimal>(
+                 name: "Dlugosc",
+                 table: "Lokalizacje",
+                 type: "decimal(18,2)",
+                 nullable: true);
 
-            // migrationBuilder.AddColumn<decimal>(
-            //     name: "Szerokosc",
-            //     table: "Lokalizacje",
-            //     type: "decimal(18,2)",
-            //     nullable: true);
+            migrationBuilder.AddColumn<decimal>(
+                 name: "Szerokosc",
+                 table: "Lokalizacje",
+                 type: "decimal(18,2)",
+                 nullable: true);
 
             migrationBuilder.AlterColumn<int>(
                 name: "ZajeciaGrupoweId",
