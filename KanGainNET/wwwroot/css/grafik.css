@@ -1,0 +1,80 @@
+/* 1. STYL POJEMNIKA - zapobiega rozjeżdżaniu się strony */
+.table-responsive-wrapper {
+    width: 100%;
+    overflow-x: auto;
+    background-color: #1e1e1e;
+    border: 1px solid #444;
+    border-radius: 8px;
+    margin-bottom: 2rem;
+}
+
+/* Wygląd paska przewijania */
+.table-responsive-wrapper::-webkit-scrollbar {
+    height: 10px;
+}
+.table-responsive-wrapper::-webkit-scrollbar-track {
+    background: #121212; 
+}
+.table-responsive-wrapper::-webkit-scrollbar-thumb {
+    background: #ff4500; /* Kolor gym-primary */
+    border-radius: 5px;
+}
+
+/* 2. STYL TABELI */
+.pb-table {
+    width: 100%;
+    border-collapse: collapse;
+    color: #fff;
+    table-layout: fixed; 
+}
+
+.pb-table th {
+    background-color: #2a2a2a;
+    color: white; 
+    padding: 15px 5px; 
+    text-align: center;
+    border: 1px solid #444;
+    font-weight: normal;
+    min-width: 130px; 
+    font-size: 0.85rem;
+}
+
+.pb-time-col {
+    background-color: #2a2a2a;
+    color: white;
+    font-weight: bold;
+    text-align: center;
+    width: 80px; 
+    min-width: 80px; 
+    border: 1px solid #444;
+}
+
+.pb-cell {
+    border: 1px solid #444;
+    height: 40px; 
+    padding: 0;
+    vertical-align: top;
+}
+
+/* Puste miejsce do rezerwacji */
+.pb-cell.free {
+    background-color: #1e1e1e;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.pb-cell.free:hover {
+    background-color: #333; 
+}
+
+/* Zajęte miejsce */
+/* Zajęte miejsce - Styl KanGain */
+.pb-cell.occupied {
+    background-color: #ff4500; /* Pomarańczowy motyw siłowni */
+    color: #ffffff; /* Biały tekst dla kontrastu */
+    padding: 8px; 
+    border-bottom: 3px solid #cc3700; /* Ciemniejszy pomarańcz dla efektu głębi */
+    cursor: default;
+    overflow: hidden; 
+    text-overflow: ellipsis; 
+}

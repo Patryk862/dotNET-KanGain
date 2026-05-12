@@ -26,6 +26,14 @@ build_property.EnableCodeStyleSeverity =
 build_metadata.AdditionalFiles.TargetPath = Vmlld3MvQWRtaW4vSW5kZXguY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
+[/Users/patrykromanowicz/Documents/GitHub/dotNET-KanGain/KanGainNET/Views/Grafik/Formularz.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvR3JhZmlrL0Zvcm11bGFyei5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/patrykromanowicz/Documents/GitHub/dotNET-KanGain/KanGainNET/Views/Grafik/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvR3JhZmlrL0luZGV4LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
 [/Users/patrykromanowicz/Documents/GitHub/dotNET-KanGain/KanGainNET/Views/Home/Index.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3MvSG9tZS9JbmRleC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 

@@ -4,6 +4,7 @@ using KanGainNET.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace KanGainNET.Migrations
 {
     [DbContext(typeof(SilowniaContext))]
-    partial class SilowniaContextModelSnapshot : ModelSnapshot
+    [Migration("20260512090408_AktualizacjaGrafiku")]
+    partial class AktualizacjaGrafiku
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -118,8 +121,8 @@ namespace KanGainNET.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<double>("Dlugosc")
-                        .HasColumnType("float");
+                    b.Property<decimal?>("Dlugosc")
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<string>("Miasto")
                         .IsRequired()
@@ -129,8 +132,8 @@ namespace KanGainNET.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<double>("Szerokosc")
-                        .HasColumnType("float");
+                    b.Property<decimal?>("Szerokosc")
+                        .HasColumnType("decimal(18,2)");
 
                     b.HasKey("Id");
 
