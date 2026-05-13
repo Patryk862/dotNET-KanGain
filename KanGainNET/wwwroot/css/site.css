@@ -1,0 +1,58 @@
+:root {
+    --gym-primary: #ff4500;
+    --gym-primary-hover: #e63e00;
+    --gym-dark: #121212;
+    --gym-card-bg: #1e1e1e;
+}
+
+body {
+    background-color: #0a0a0a;
+    color: #f8f9fa;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+.navbar {
+    background-color: var(--gym-dark) !important;
+    border-bottom: 2px solid var(--gym-primary);
+}
+
+.navbar-brand {
+    font-weight: 900;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: white !important;
+}
+.navbar-brand span { color: var(--gym-primary); }
+
+.nav-link {
+    color: #aaaaaa !important;
+    text-transform: uppercase;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    transition: color 0.3s ease;
+}
+.nav-link:hover { color: var(--gym-primary) !important; }
+
+footer {
+    background-color: var(--gym-dark);
+    border-top: 1px solid #333;
+    color: #777;
+}
+
+.btn-gym {
+    background-color: var(--gym-primary);
+    color: white;
+    border: none;
+    text-transform: uppercase;
+    font-weight: 700;
+    letter-spacing: 1px;
+    transition: all 0.3s ease;
+}
+.btn-gym:hover {
+    background-color: var(--gym-primary-hover);
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(255, 69, 0, 0.4);
+}

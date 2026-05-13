@@ -1,0 +1,64 @@
+@model KanGainNET.Models.ViewModels.GrafikViewModel
+
+<link rel="stylesheet" href="~/css/grafik.css" asp-append-version="true" />
+
+<div class="container mt-5">
+    <div class="row align-items-center mb-4">
+        <div class="col-md-6">
+            <h2 class="text-white m-0 text-uppercase fw-bold">Grafik: <span class="text-gym">@Model.Data.ToString("dd MMMM yyyy")</span></h2>
+        </div>
+        <div class="col-md-3">
+            <select id="lokalizacjaSelect" class="form-select bg-dark text-white border-secondary" onchange="odswiezGrafik()">
+                @foreach (var lok in Model.Lokalizacje)
+                {
+                    <!option value="@lok.Id" @(lok.Id == Model.WybranaLokalizacjaId ? "selected" : "")>@lok.Nazwa</!option>
+                }
+            </select>
+        </div>
+        <div class="col-md-3">
+            <input type="date" id="dataPicker" class="form-control bg-dark text-white border-secondary" value="@Model.Data.ToString("yyyy-MM-dd")" onchange="odswiezGrafik()" />
+        </div>
+    </div>
+
+    <div class="table-responsive-wrapper shadow-lg">
+        <table class="pb-table">
+            <thead>
+                <tr>
+                    <th class="pb-time-col">Czas</th>
+                    @foreach (var sala in Model.Sale) { <th>@sala.Nazwa</th> }
+                </tr>
+            </thead>
+            <tbody>
+                @{
+                    var pomijaj = Model.Sale.ToDictionary(s => s.Id, s => 0);
+                    foreach (var godzina in Model.GodzinySiatki)
+                    {
+                        <tr>
+                            <td class="pb-time-col">@godzina.ToString("HH:mm")</td>
+                            @foreach (var sala in Model.Sale)
+                            {
+                                if (pomijaj[sala.Id] > 0) { pomijaj[sala.Id]--; continue; }
+                                var z = Model.Zajecia.FirstOrDefault(x => x.SalaId == sala.Id && x.DataStart == godzina);
+                                if (z != null)
+                                {
+                                    int bloki = (int)((z.DataKoniec - z.DataStart).TotalMinutes / 30);
+                                    pomijaj[sala.Id] = bloki - 1;
+                                    <td rowspan="@bloki" class="pb-cell occupied" onclick="location.href='/Grafik/Formularz?id=@z.Id'" style="cursor:pointer;">
+                                        <div class="fw-bold">@(z.ZajeciaGrupowe?.Nazwa ?? "Rezerwacja")</div>
+                                        <small>@z.DataStart.ToString("HH:mm") - @z.DataKoniec.ToString("HH:mm")</small>
+                                    </td>
+                                }
+                                else
+                                {
+                                    <td class="pb-cell free" onclick="location.href='/Grafik/Formularz?salaId=@sala.Id&dataStart=@godzina.ToString("yyyy-MM-ddTHH:mm:ss")'"></td>
+                                }
+                            }
+                        </tr>
+                    }
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+@section Scripts { <script src="~/js/grafik.js" asp-append-version="true"></script> }
