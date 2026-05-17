@@ -19,9 +19,10 @@ namespace KanGainNET.Controllers
             var wybranaData = data ?? DateTime.Today;
             var lokalizacje = await _context.Lokalizacje.ToListAsync();
             var idLokalizacji = lokalizacjaId ?? lokalizacje.FirstOrDefault()?.Id;
-            var startGodzina = wybranaData.Date.AddHours(8); 
+            var startGodzina = wybranaData.Date.AddHours(8);
 
-            var model = new GrafikViewModel {
+            var model = new GrafikViewModel
+            {
                 Data = wybranaData,
                 Lokalizacje = lokalizacje,
                 WybranaLokalizacjaId = idLokalizacji,
@@ -30,7 +31,7 @@ namespace KanGainNET.Controllers
                     .Include(g => g.ZajeciaGrupowe).Include(g => g.Sala)
                     .Where(g => g.DataStart.Date == wybranaData.Date && g.Sala.LokalizacjaId == idLokalizacji)
                     .ToListAsync(),
-                GodzinySiatki = Enumerable.Range(0, 28).Select(i => startGodzina.AddMinutes(30 * i)).ToList() 
+                GodzinySiatki = Enumerable.Range(0, 28).Select(i => startGodzina.AddMinutes(30 * i)).ToList()
             };
 
             return View(model);
@@ -71,7 +72,27 @@ namespace KanGainNET.Controllers
 
             model.DostepneSale = await _context.Sale.Where(s => s.LokalizacjaId == currentLokId).ToListAsync();
             model.DostepneZajecia = await _context.ZajeciaGrupowe.ToListAsync();
-            model.DostepniPracownicy = await _context.Pracownicy.Include(p => p.Uzytkownik).ToListAsync();
+
+            var wybraneZajecieId = model.ZajeciaGrupoweId ?? model.DostepneZajecia.FirstOrDefault()?.Id;
+            if (wybraneZajecieId.HasValue)
+            {
+                var zajecie = await _context.ZajeciaGrupowe.FindAsync(wybraneZajecieId.Value);
+                if (zajecie != null)
+                {
+                    model.DostepniPracownicy = await _context.Pracownicy
+                        .Include(p => p.Uzytkownik).ThenInclude(u => u.Profil)
+                        .Where(p => p.Specjalizacja.ToLower() == zajecie.Nazwa.ToLower())
+                        .ToListAsync();
+                }
+                else
+                {
+                    model.DostepniPracownicy = await _context.Pracownicy.Include(p => p.Uzytkownik).ToListAsync();
+                }
+            }
+            else
+            {
+                model.DostepniPracownicy = await _context.Pracownicy.Include(p => p.Uzytkownik).ToListAsync();
+            }
 
             return View(model);
         }
@@ -98,8 +119,28 @@ namespace KanGainNET.Controllers
                 int lokId = s?.LokalizacjaId ?? 1;
                 model.DostepneSale = await _context.Sale.Where(x => x.LokalizacjaId == lokId).ToListAsync();
                 model.DostepneZajecia = await _context.ZajeciaGrupowe.ToListAsync();
-                model.DostepniPracownicy = await _context.Pracownicy.Include(p => p.Uzytkownik).ToListAsync();
                 model.ListaGodzinDropdown = GenerujListeGodzin();
+
+                if (model.ZajeciaGrupoweId.HasValue)
+                {
+                    var zajecie = await _context.ZajeciaGrupowe.FindAsync(model.ZajeciaGrupoweId.Value);
+                    if (zajecie != null)
+                    {
+                        model.DostepniPracownicy = await _context.Pracownicy
+                            .Include(p => p.Uzytkownik).ThenInclude(u => u.Profil)
+                            .Where(p => p.Specjalizacja.ToLower() == zajecie.Nazwa.ToLower())
+                            .ToListAsync();
+                    }
+                    else
+                    {
+                        model.DostepniPracownicy = await _context.Pracownicy.Include(p => p.Uzytkownik).ToListAsync();
+                    }
+                }
+                else
+                {
+                    model.DostepniPracownicy = await _context.Pracownicy.Include(p => p.Uzytkownik).ToListAsync();
+                }
+
                 return View("Formularz", model);
             }
 
@@ -132,6 +173,30 @@ namespace KanGainNET.Controllers
 
             await _context.SaveChangesAsync();
             return RedirectToAction("Index", new { data = model.DataStart.ToString("yyyy-MM-dd") });
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> PobierzTrenerowPoZajeciach(int zajeciaGrupoweId)
+        {
+            var zajecie = await _context.ZajeciaGrupowe.FindAsync(zajeciaGrupoweId);
+            if (zajecie == null)
+            {
+                return Json(new List<object>());
+            }
+
+            var trenerzy = await _context.Pracownicy
+                .Include(p => p.Uzytkownik).ThenInclude(u => u.Profil)
+                .Where(p => p.Specjalizacja.ToLower() == zajecie.Nazwa.ToLower())
+                .Select(p => new
+                {
+                    id = p.Id,
+                    text = p.Uzytkownik.Profil != null && !string.IsNullOrEmpty(p.Uzytkownik.Profil.Imie)
+                        ? $"{p.Uzytkownik.Profil.Imie} {p.Uzytkownik.Profil.Nazwisko} ({p.Uzytkownik.Email})"
+                        : p.Uzytkownik.Email
+                })
+                .ToListAsync();
+
+            return Json(trenerzy);
         }
 
         [HttpPost]
