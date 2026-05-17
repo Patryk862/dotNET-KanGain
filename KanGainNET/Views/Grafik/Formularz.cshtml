@@ -20,6 +20,7 @@
         </div>
         <div class="card-body p-4">
             <form asp-action="Zapisz" method="post" id="grafikForm">
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger fw-bold"></div>
                 @if (Model.Id.HasValue) { <input type="hidden" asp-for="Id" /> }
                 <input type="hidden" asp-for="DataStart" id="HiddenDataStart" />
                 <input type="hidden" asp-for="DataKoniec" id="HiddenDataKoniec" />

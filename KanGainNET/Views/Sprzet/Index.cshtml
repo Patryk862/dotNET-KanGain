@@ -1,0 +1,58 @@
+﻿@model IEnumerable<KanGainNET.Models.Sprzet>
+
+<div class="container mt-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="text-white text-uppercase fw-bold">Zarządzanie Sprzętem</h2>
+
+        <form method="get" class="d-flex gap-2">
+            <select name="lokalizacjaId" class="form-select bg-dark text-white border-secondary" onchange="this.form.submit()">
+                @foreach (var lok in ViewBag.Lokalizacje)
+                {
+                    <!option value="@lok.Id" @(lok.Id == ViewBag.WybraneId ? "selected" : "")>@lok.Nazwa</!option>
+                }
+            </select>
+        </form>
+    </div>
+
+    <div class="card bg-dark border-secondary shadow">
+        <div class="table-responsive">
+            <table class="table table-dark table-hover mb-0">
+                <thead>
+                    <tr class="text-secondary small">
+                        <th>NAZWA</th>
+                        <th>STAN TECHNICZNY</th>
+                        <th class="text-end">AKCJA</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td class="fw-bold">@item.Nazwa</td>
+                            <td>
+                                @{
+                                    var kolor = item.StanTechniczny == "Dobry" ? "text-success" : (item.StanTechniczny == "Uszkodzony" ? "text-danger" : "text-warning");
+                                }
+                                <span class="@kolor fw-bold">● @item.StanTechniczny</span>
+                            </td>
+                            <td class="text-end">
+                                <form asp-action="ZmienStan" method="post" class="d-inline">
+                                    <input type="hidden" name="id" value="@item.Id" />
+                                    <div class="btn-group">
+                                        <button type="submit" name="stan" value="Dobry" class="btn btn-sm btn-outline-success">OK</button>
+                                        <button type="submit" name="stan" value="Wymaga serwisu" class="btn btn-sm btn-outline-warning">Serwis</button>
+                                        <button type="submit" name="stan" value="Uszkodzony" class="btn btn-sm btn-outline-danger">Awaria</button>
+                                    </div>
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="mt-4">
+        <a asp-controller="Admin" asp-action="Index" class="btn btn-outline-light rounded-pill px-4">Powrót do panelu</a>
+    </div>
+</div>

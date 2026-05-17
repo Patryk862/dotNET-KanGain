@@ -80,14 +80,23 @@ namespace KanGainNET.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Zapisz(GrafikViewModel model)
         {
-            if (model.DataStart >= model.DataKoniec)
-                ModelState.AddModelError("DataKoniec", "Koniec musi być po starcie.");
+            var czyKolizja = await _context.Grafiki.AnyAsync(g =>
+                g.SalaId == model.SalaId &&
+                g.Id != (model.Id ?? 0) &&
+                g.DataStart < model.DataKoniec &&
+                g.DataKoniec > model.DataStart
+            );
+
+            if (czyKolizja)
+            {
+                ModelState.AddModelError("", "Ta sala jest już zajęta.");
+            }
 
             if (!ModelState.IsValid)
             {
-                var sala = await _context.Sale.FindAsync(model.SalaId);
-                int lokId = sala?.LokalizacjaId ?? 1;
-                model.DostepneSale = await _context.Sale.Where(s => s.LokalizacjaId == lokId).ToListAsync();
+                var s = await _context.Sale.FindAsync(model.SalaId);
+                int lokId = s?.LokalizacjaId ?? 1;
+                model.DostepneSale = await _context.Sale.Where(x => x.LokalizacjaId == lokId).ToListAsync();
                 model.DostepneZajecia = await _context.ZajeciaGrupowe.ToListAsync();
                 model.DostepniPracownicy = await _context.Pracownicy.Include(p => p.Uzytkownik).ToListAsync();
                 model.ListaGodzinDropdown = GenerujListeGodzin();
@@ -111,12 +120,16 @@ namespace KanGainNET.Controllers
             }
             else
             {
-                _context.Grafiki.Add(new Grafik {
-                    SalaId = model.SalaId, DataStart = model.DataStart, DataKoniec = model.DataKoniec,
+                _context.Grafiki.Add(new Grafik
+                {
+                    SalaId = model.SalaId,
+                    DataStart = model.DataStart,
+                    DataKoniec = model.DataKoniec,
                     ZajeciaGrupoweId = isStaff ? model.ZajeciaGrupoweId : null,
                     PracownikId = isStaff ? model.PracownikId : null
                 });
             }
+
             await _context.SaveChangesAsync();
             return RedirectToAction("Index", new { data = model.DataStart.ToString("yyyy-MM-dd") });
         }
