@@ -101,16 +101,31 @@ namespace KanGainNET.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Zapisz(GrafikViewModel model)
         {
-            var czyKolizja = await _context.Grafiki.AnyAsync(g =>
+            var czyKolizjaSali = await _context.Grafiki.AnyAsync(g =>
                 g.SalaId == model.SalaId &&
                 g.Id != (model.Id ?? 0) &&
                 g.DataStart < model.DataKoniec &&
                 g.DataKoniec > model.DataStart
             );
 
-            if (czyKolizja)
+            if (czyKolizjaSali)
             {
                 ModelState.AddModelError("", "Ta sala jest już zajęta.");
+            }
+
+            if (model.PracownikId.HasValue)
+            {
+                var czyKolizjaPracownika = await _context.Grafiki.AnyAsync(g =>
+                    g.PracownikId == model.PracownikId &&
+                    g.Id != (model.Id ?? 0) &&
+                    g.DataStart < model.DataKoniec &&
+                    g.DataKoniec > model.DataStart
+                );
+
+                if (czyKolizjaPracownika)
+                {
+                    ModelState.AddModelError("", "Ten pracownik prowadzi już inne zajęcia w tym samym czasie!");
+                }
             }
 
             if (!ModelState.IsValid)

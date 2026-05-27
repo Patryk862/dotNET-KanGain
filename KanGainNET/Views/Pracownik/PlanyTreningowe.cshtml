@@ -1,0 +1,78 @@
+﻿@model IEnumerable<KanGainNET.Models.PlanTreningowy>
+
+@{
+    ViewData["Title"] = "Zarządzanie Planami Treningowymi";
+}
+
+<div class="container mt-5 mb-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="fw-bold text-white text-uppercase m-0">
+            Plany <span style="color: var(--gym-primary)">Treningowe</span>
+        </h2>
+        <div>
+            <a asp-controller="Pracownik" asp-action="StworzPlan" class="btn btn-gym rounded-pill btn-sm me-2">+ Dodaj Nowy Plan</a>
+            <a asp-action="Index" class="btn btn-secondary rounded-pill btn-sm">Powrót</a>
+        </div>
+    </div>
+
+    <div class="card bg-dark border-secondary shadow">
+        <div class="card-body p-0">
+            @if (!Model.Any())
+            {
+                <div class="p-5 text-center text-secondary">
+                    <p class="m-0">Nie stworzyłeś jeszcze żadnych planów treningowych.</p>
+                </div>
+            }
+            else
+            {
+                <div class="table-responsive">
+                    <table class="table table-dark table-hover align-middle m-0">
+                        <thead>
+                            <tr class="text-secondary text-uppercase fs-7 border-secondary">
+                                <th class="px-4 py-3">Nazwa Planu</th>
+                                <th class="py-3">Podopieczny</th>
+                                <th class="py-3">Data utworzenia</th>
+                                <th class="px-4 py-3 text-end">Akcje</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model)
+                            {
+                                <tr class="border-secondary">
+                                    <td class="px-4 py-3 fw-bold text-white">
+                                        @item.Nazwa
+                                    </td>
+                                    <td class="py-3 text-secondary">
+                                        @if (item.Uzytkownik?.Profil != null)
+                                        {
+                                            @($"{item.Uzytkownik.Profil.Imie} {item.Uzytkownik.Profil.Nazwisko}")
+                                        }
+                                        else
+                                        {
+                                            @item.Uzytkownik?.Email
+                                        }
+                                    </td>
+                                    <td class="py-3 text-secondary">
+                                        @item.DataStworzenia.ToString("dd.MM.yyyy")
+                                    </td>
+                                    <td class="px-4 py-3 text-end">
+                                        <div class="d-flex justify-content-end align-items-center">
+                                            <a asp-controller="Pracownik" asp-action="StworzPlan" asp-route-id="@item.Id" class="btn btn-sm btn-outline-light rounded-pill me-2">
+                                                Podgląd
+                                            </a>
+
+                                            <form asp-controller="Pracownik" asp-action="UsunPlan" asp-route-id="@item.Id" method="post" class="m-0" onsubmit="return confirm('Czy na pewno chcesz usunąć ten plan treningowy?');">
+                                                @Html.AntiForgeryToken()
+                                                <button type="submit" class="btn btn-sm btn-outline-danger rounded-pill">Usuń</button>
+                                            </form>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </div>
+    </div>
+</div>

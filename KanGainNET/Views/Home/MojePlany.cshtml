@@ -1,0 +1,114 @@
+﻿@model IEnumerable<KanGainNET.Models.PlanTreningowy>
+@using System.Text.Json.Nodes
+
+@{
+    ViewData["Title"] = "Moje Plany Treningowe";
+}
+
+<style>
+    /* 1. Odwraca kolor strzałki ninja z czarnej na białą */
+    .accordion-button::after {
+        filter: invert(1) !important;
+    } 
+</style>
+
+<div class="container mt-5 mb-5">
+    <div class="mb-4">
+        <h2 class="fw-bold text-white text-uppercase m-0">
+            Moje <span style="color: var(--gym-primary)">Plany Treningowe</span>
+        </h2>
+    </div>
+
+    @if (!Model.Any())
+    {
+        <div class="card bg-dark border-secondary shadow p-5 text-center">
+            <h4 class="text-white mb-3">Brak aktywnych planów</h4>
+            <p class="text-secondary m-0">Twój trener nie udostępnił Ci jeszcze żadnego planu treningowego.</p>
+        </div>
+    }
+    else
+    {
+        <div class="accordion" id="planyAccordion">
+            @foreach (var plan in Model)
+            {
+                var planId = $"plan_{plan.Id}";
+                var collapseId = $"collapse_{plan.Id}";
+                var trenerImie = plan.Trener?.Uzytkownik?.Profil?.Imie ?? "Twój Trener";
+                var trenerNazwisko = plan.Trener?.Uzytkownik?.Profil?.Nazwisko ?? "";
+
+                <div class="accordion-item bg-dark border-secondary mb-3 rounded overflow-hidden shadow-sm">
+                    <h2 class="accordion-header" id="@planId">
+                        <button class="accordion-button collapsed bg-dark text-white shadow-none" type="button" data-bs-toggle="collapse" data-bs-target="#@collapseId" aria-expanded="false" aria-controls="@collapseId">
+                            <div class="d-flex flex-column text-start w-100">
+                                <span class="fw-bold fs-5 text-uppercase" style="color: var(--gym-primary)">@plan.Nazwa</span>
+                                <span class="text-secondary small mt-1">
+                                    <i class="bi bi-calendar3"></i> Dodano: @plan.DataStworzenia.ToString("dd.MM.yyyy") &nbsp;|&nbsp;
+                                    <i class="bi bi-person-badge"></i> Ułożone przez: @trenerImie @trenerNazwisko
+                                </span>
+                            </div>
+                        </button>
+                    </h2>
+                    <div id="@collapseId" class="accordion-collapse collapse" aria-labelledby="@planId" data-bs-parent="#planyAccordion">
+                        <div class="accordion-body p-0 border-top border-secondary">
+
+                            @if (!plan.Cwiczenia.Any())
+                            {
+                                <div class="p-4 text-center text-secondary">
+                                    Ten plan jest obecnie pusty.
+                                </div>
+                            }
+                            else
+                            {
+                                JsonNode parametry = null;
+                                if (!string.IsNullOrEmpty(plan.Opis))
+                                {
+                                    try { parametry = JsonNode.Parse(plan.Opis); } catch { }
+                                }
+
+                                <div class="table-responsive">
+                                    <table class="table table-dark table-hover align-middle m-0">
+                                        <thead>
+                                            <tr class="text-secondary text-uppercase fs-7 border-secondary">
+                                                <th class="px-4 py-3">Ćwiczenie</th>
+                                                <th class="py-3 text-center">Kategoria</th>
+                                                <th class="py-3 text-center">Serie</th>
+                                                <th class="px-4 py-3 text-center">Przerwa</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach (var cw in plan.Cwiczenia)
+                                            {
+                                                int serie = 3;
+                                                int przerwa = 60;
+
+                                                if (parametry != null && parametry[cw.Id.ToString()] != null)
+                                                {
+                                                    var p = parametry[cw.Id.ToString()];
+                                                    serie = p["s"]?.GetValue<int>() ?? 3;
+                                                    przerwa = p["p"]?.GetValue<int>() ?? 60;
+                                                }
+
+                                                <tr class="border-secondary">
+                                                    <td class="px-4 py-3 fw-bold text-white">@cw.Nazwa</td>
+                                                    <td class="py-3 text-secondary text-center">
+                                                        <span class="badge border border-secondary text-secondary">@cw.Kategoria</span>
+                                                    </td>
+                                                    <td class="py-3 text-white text-center">
+                                                        <span class="badge bg-secondary fs-6">@serie</span>
+                                                    </td>
+                                                    <td class="px-4 py-3 text-white text-center">
+                                                        <span class="badge bg-secondary fs-6">@przerwa s</span>
+                                                    </td>
+                                                </tr>
+                                            }
+                                        </tbody>
+                                    </table>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>
