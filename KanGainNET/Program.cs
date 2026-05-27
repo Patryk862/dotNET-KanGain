@@ -1,6 +1,7 @@
-using Microsoft.EntityFrameworkCore;
 using KanGainNET.Data;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.OpenApi;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -22,6 +23,18 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
 // Dodaj obsługę kontrolerów i widoków (MVC)
 builder.Services.AddControllersWithViews();
 
+//Swagger
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen(c =>
+{
+    c.SwaggerDoc("v1", new OpenApiInfo
+    {
+        Title = "KanGain API",
+        Version = "v1",
+        Description = "Dokumentacja interfejsu API dla siłowni KanGain"
+    });
+});
+
 //builder.Services.AddSingleton<RFIDReaderService>();
 Stripe.StripeConfiguration.ApiKey = builder.Configuration.GetSection("Stripe:SecretKey").Get<string>();
 
@@ -36,6 +49,15 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
 }
 
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI(c =>
+    {
+        c.SwaggerEndpoint("/swagger/v1/swagger.json", "KanGain API v1");
+    });
+}
+
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 
@@ -43,6 +65,8 @@ app.UseRouting();
 
 app.UseAuthentication();
 app.UseAuthorization();
+
+app.MapControllers();
 
 app.MapControllerRoute(
     name: "default",

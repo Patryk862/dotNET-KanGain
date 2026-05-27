@@ -4,9 +4,11 @@ using Microsoft.AspNetCore.Mvc;
 namespace KanGainNET.Controllers
 {
     // Upewnij się, że nazwa w bazie dla RolaId = 3 to "Pracownik" lub zmień ten string (np. na "Trener")
-    [Authorize(Roles = "Trener")] 
+    [Authorize(Roles = "Trener")]
+    [Route("[controller]")]
     public class PracownikController : Controller
     {
+        [HttpGet]
         public IActionResult Index()
         {
             return View();
