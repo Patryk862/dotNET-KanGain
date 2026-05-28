@@ -1,0 +1,165 @@
+﻿@model KanGainNET.Models.ViewModels.DodajPlanViewModel
+
+<div class="container mt-5" id="kreator-glowny" data-zapisane-ids="@(Model.WybraneCwiczeniaIds != null ? string.Join(",", Model.WybraneCwiczeniaIds) : "")">
+    <h2 class="text-white text-uppercase fw-bold mb-4">Nowy <span style="color: var(--gym-primary)">Plan</span></h2>
+
+    <form asp-action="ZapiszPlan" method="post">
+        <input type="hidden" asp-for="Id" />
+        <input type="hidden" id="UkrytyOpisParametrow" name="UkrytyOpisParametrow" />
+        <div class="row g-4">
+            <div class="col-md-7">
+                <div class="card bg-dark border-secondary p-4 mb-4">
+                    <label class="text-secondary small text-uppercase fw-bold mb-2">Nazwa Planu</label>
+                    <input asp-for="Nazwa" class="form-control bg-dark border-secondary text-white mb-3" placeholder="np. Masa 2026">
+
+                    <label class="text-secondary small text-uppercase fw-bold mb-2">Dla kogo</label>
+                    <select asp-for="WybranyUzytkownikId" asp-items="Model.Klubowicze" class="form-select bg-dark border-secondary text-white">
+                        <option value="">Wybierz klubowicza...</option>
+                    </select>
+                </div>
+
+                <div class="card bg-dark border-secondary p-4">
+                    <h5 class="text-white mb-3">Wybierz ćwiczenia</h5>
+                    <div class="list-group">
+                        @foreach (var kat in Model.WszystkieCwiczenia.GroupBy(c => c.Kategoria))
+                        {
+                            <div class="text-secondary fw-bold small mt-3 mb-2 text-uppercase">@kat.Key</div>
+                            @foreach (var cw in kat)
+                            {
+                                <div class="list-group-item bg-dark border-secondary d-flex justify-content-between align-items-center">
+                                    <span class="text-white">@cw.Nazwa</span>
+                                    <button type="button" class="btn btn-sm btn-outline-light rounded-pill add-btn"
+                                            data-id="@cw.Id" data-name="@cw.Nazwa">
+                                        Dodaj
+                                    </button>
+                                </div>
+                            }
+                        }
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-5">
+                <div class="card bg-dark border-secondary p-4 h-100">
+                    <h5 class="text-white mb-3">Twój zestaw:</h5>
+                    <ul id="selected-list" class="list-group mb-4">
+                    </ul>
+                    <button type="submit" class="btn btn-gym w-100 rounded-pill mt-auto">ZAPISZ PLAN</button>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const selectedList = document.getElementById('selected-list');
+            const hiddenInput = document.getElementById('UkrytyOpisParametrow');
+
+            // 1. Ładowanie zapisanych parametrów z bazy bezpośrednio jako obiekt
+            const parametry = @Html.Raw(string.IsNullOrEmpty((string)ViewBag.ZapisaneParametryJson) ? "{}" : ViewBag.ZapisaneParametryJson);
+
+            // 2. Prosta funkcja pakująca stan do JSON z wymuszeniem minimum 
+            window.zapiszDoJson = function () {
+                const słownik = {};
+                selectedList.querySelectorAll('.pozycja-planu-item').forEach(item => {
+                    const id = item.getAttribute('data-cwiczenie-id');
+                    const s = item.querySelector('.input-serie').value;
+                    const p = item.querySelector('.input-przerwa').value;
+
+                    słownik[id] = {
+                        s: Math.max(1, parseInt(s) || 3),
+                        p: Math.max(15, parseInt(p) || 60)
+                    };
+                });
+                hiddenInput.value = JSON.stringify(słownik);
+            };
+
+            window.korygujWartosc = function (el, min) {
+                if (el.value === '' || parseInt(el.value) < min) {
+                    el.value = min;
+                }
+                zapiszDoJson();
+            };
+
+            // 3. Funkcja usuwająca 
+            window.usunCwiczenie = function (btnElement, id) {
+                btnElement.closest('.pozycja-planu-item').remove();
+                zapiszDoJson();
+
+                const addButton = document.querySelector(`.add-btn[data-id="${id}"]`);
+                if (addButton) {
+                    addButton.classList.remove('disabled');
+                    addButton.classList.replace('btn-secondary', 'btn-outline-light');
+                    addButton.innerText = "Dodaj";
+                }
+            };
+
+            // 4. Funkcja dodawania ćwiczenia
+            window.dodajCwiczenieDoZestawu = function (id, name, serie = 3, przerwa = 60) {
+                if (selectedList.querySelector(`[data-cwiczenie-id="${id}"]`)) return;
+
+                const li = document.createElement('li');
+                li.className = "list-group-item bg-transparent border-0 border-bottom border-secondary text-white py-2 px-0 d-flex justify-content-between align-items-center pozycja-planu-item";
+                li.setAttribute('data-cwiczenie-id', id);
+
+                li.innerHTML = `
+                            <div class="d-flex align-items-center flex-grow-1">
+                                <div class="fw-bold text-truncate pe-2" style="width: 220px; color: var(--gym-primary);">${name}:</div>
+                                <div class="d-flex align-items-center">
+                                    <div class="d-flex align-items-center me-4">
+                                        <input type="number"
+                                            oninput="zapiszDoJson()"
+                                            onchange="korygujWartosc(this, 1)"
+                                            onkeydown="if(['-', '+', 'e', 'E'].includes(event.key)) event.preventDefault();"
+                                            class="form-control form-control-sm bg-dark text-white border-secondary text-center input-serie"
+                                            value="${serie}" min="1" style="width: 50px; height: 28px;">
+                                        <span class="text-secondary small ms-1">serie</span>
+                                    </div>
+                                    <div class="d-flex align-items-center">
+                                        <input type="number"
+                                            oninput="zapiszDoJson()"
+                                            onchange="korygujWartosc(this, 15)"
+                                            onkeydown="if(['-', '+', 'e', 'E'].includes(event.key)) event.preventDefault();"
+                                            class="form-control form-control-sm bg-dark text-white border-secondary text-center input-przerwa"
+                                            value="${przerwa}" min="15" step="5" style="width: 60px; height: 28px;">
+                                        <span class="text-secondary small ms-1">s przerwy</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <button type="button" class="btn-close btn-close-white ms-2" style="font-size: 0.8rem;" onclick="usunCwiczenie(this, '${id}')"></button>
+                            <input type="hidden" name="WybraneCwiczeniaIds" value="${id}" />
+                        `;
+                selectedList.appendChild(li);
+                zapiszDoJson();
+
+                const addButton = document.querySelector(`.add-btn[data-id="${id}"]`);
+                if (addButton) {
+                    addButton.classList.add('disabled');
+                    addButton.classList.replace('btn-outline-light', 'btn-secondary');
+                    addButton.innerText = "Dodane";
+                }
+            };
+
+            // 5. Obsługa kliknięć "Dodaj"
+            document.querySelectorAll('.add-btn').forEach(btn => {
+                btn.addEventListener('click', function () {
+                    dodajCwiczenieDoZestawu(this.dataset.id, this.dataset.name);
+                });
+            });
+
+            // 6. Ładowanie starych danych
+            const rawIds = document.getElementById('kreator-glowny').getAttribute('data-zapisane-ids');
+            if (rawIds && rawIds.trim() !== "") {
+                rawIds.split(',').forEach(id => {
+                    const btn = document.querySelector(`.add-btn[data-id="${id}"]`);
+                    if (btn) {
+                        const p = parametry[id] || {};
+                        dodajCwiczenieDoZestawu(id, btn.dataset.name, p.s || 3, p.p || 60);
+                    }
+                });
+            }
+        });
+    </script>
+}

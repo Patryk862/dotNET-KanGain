@@ -4,6 +4,7 @@ using KanGainNET.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace KanGainNET.Migrations
 {
     [DbContext(typeof(SilowniaContext))]
-    partial class SilowniaContextModelSnapshot : ModelSnapshot
+    [Migration("20260527134233_PolaczeniePlanyZCwiczeniami")]
+    partial class PolaczeniePlanyZCwiczeniami
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -197,9 +200,6 @@ namespace KanGainNET.Migrations
 
                     b.Property<string>("Nazwa")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Opis")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("PracownikId")
