@@ -1,6 +1,7 @@
 using KanGainNET.Data;
 using KanGainNET.Models;
 using KanGainNET.Models.ViewModels;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -10,8 +11,11 @@ using System.Threading.Tasks;
 
 namespace KanGainNET.Controllers
 {
+    // Upewnij się, że nazwa w bazie dla RolaId = 3 to "Pracownik" lub zmień ten string (np. na "Trener")
+    [Authorize(Roles = "Trener")]
     public class PracownikController : Controller
     {
+
         private readonly SilowniaContext _context;
 
         public PracownikController(SilowniaContext context)
@@ -19,12 +23,6 @@ namespace KanGainNET.Controllers
             _context = context;
         }
 
-    // Upewnij się, że nazwa w bazie dla RolaId = 3 to "Pracownik" lub zmień ten string (np. na "Trener")
-    [Authorize(Roles = "Trener")]
-    [Route("[controller]")]
-    public class PracownikController : Controller
-    {
-        [HttpGet]
         public IActionResult Index()
         {
             return View();
