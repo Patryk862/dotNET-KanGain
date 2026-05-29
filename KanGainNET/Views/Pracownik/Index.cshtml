@@ -13,7 +13,9 @@
                 <div class="card-body text-center p-4">
                     <h5 class="text-white text-uppercase mb-3">Twój Grafik</h5>
                     <p class="text-secondary small">Sprawdź nadchodzące zajęcia grupowe, które prowadzisz.</p>
-                    <button class="btn btn-outline-light w-100 rounded-pill">Sprawdź Grafik</button>
+                    <a asp-controller="Pracownik" asp-action="Grafik" class="btn btn-outline-light w-100 rounded-pill">
+                        Sprawdź Grafik
+                    </a>
                 </div>
             </div>
         </div>
@@ -22,7 +24,9 @@
                 <div class="card-body text-center p-4">
                     <h5 class="text-white text-uppercase mb-3">Plany Treningowe</h5>
                     <p class="text-secondary small">Twórz i przypisuj plany treningowe dla swoich podopiecznych.</p>
-                    <button class="btn btn-gym w-100 rounded-pill">Zarządzaj Planami</button>
+                    <a asp-controller="Pracownik" asp-action="PlanyTreningowe" class="btn btn-gym w-100 rounded-pill">
+                        Zarządzaj Planami
+                    </a>
                 </div>
             </div>
         </div>

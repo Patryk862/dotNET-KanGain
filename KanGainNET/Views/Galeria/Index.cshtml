@@ -1,0 +1,78 @@
+@model List<string>
+
+@{
+    ViewData["Title"] = "Galeria Siłowni";
+}
+
+<style>
+    /* Elastyczny CSS Grid dopasowujący liczbę kolumn do szerokości ekranu */
+    .galeria-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 24px;
+        padding: 20px 0;
+    }
+
+    .galeria-item {
+        position: relative;
+        overflow: hidden;
+        border: 2px solid #222;
+        border-radius: 12px;
+        background-color: #000;
+        aspect-ratio: 4/3; /* Wymuszenie jednakowych proporcji dla wszystkich kafelków */
+        transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    /* Efekt po najechaniu myszką - dopasowany do stylu KanGain */
+    .galeria-item:hover {
+        transform: translateY(-5px);
+        border-color: #ff5500; /* Pomarańczowy akcent klubowy */
+        box-shadow: 0 10px 25px rgba(255, 85, 0, 0.25);
+    }
+
+    .galeria-img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover; /* Wypełnienie kadru bez zniekształceń */
+        transition: transform 0.5s ease;
+    }
+
+    .galeria-item:hover .galeria-img {
+        transform: scale(1.08); /* Delikatny zoom zdjęcia wewnątrz kafelka */
+    }
+</style>
+
+<div class="container mt-5">
+    <div class="text-center mb-5">
+        <h2 class="text-white text-uppercase fw-bold m-0">Nasze <span class="text-gym">zdjęcia</span></h2>
+        <p class="text-secondary small text-uppercase mt-2">Zobacz jak wyglądają siłownie i wyposażenie KanGain</p>
+        <hr class="border-secondary opacity-25 mx-auto" style="max-width: 80px; border-width: 3px;">
+    </div>
+
+    @if (Model == null || !Model.Any())
+    {
+        @* Komunikat ratunkowy, jeśli folder byłby pusty *@
+        <div class="card bg-dark text-white border-secondary text-center p-5 mx-auto" style="max-width: 500px;">
+            <div class="card-body">
+                <i class="bi bi-images text-secondary mb-3" style="font-size: 3rem;"></i>
+                <h5 class="fw-bold text-uppercase">Brak zdjęć w galerii</h5>
+                <p class="text-secondary small card-text mt-2">
+                    Dodaj pliki graficzne do folderu <br />
+                    <code>wwwroot/images/galeria/</code> na serwerze, aby wyświetlić je w tym miejscu.
+                </p>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="galeria-grid">
+            @foreach (var sciezkaZdjecia in Model)
+            {
+                <div class="galeria-item shadow-lg">
+                    @* loading="lazy" optymalizuje ładowanie strony i oszczędza transfer na Azure *@
+                    <img src="@sciezkaZdjecia" alt="Zdjęcie wnętrza silowni KanGain" class="galeria-img" loading="lazy" />
+                </div>
+            }
+        </div>
+    }
+</div>

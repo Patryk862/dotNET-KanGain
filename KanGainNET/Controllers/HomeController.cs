@@ -1,8 +1,10 @@
+using KanGainNET.Data; 
 using KanGainNET.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System.Diagnostics;
-using KanGainNET.Data; // Dodane dla SilowniaContext
-using Microsoft.EntityFrameworkCore; // Dodane dla ToListAsync()
+using System.Security.Claims;
 
 namespace KanGainNET.Controllers
 {
@@ -43,6 +45,29 @@ namespace KanGainNET.Controllers
         {
             var kluby = await _context.Lokalizacje.ToListAsync();
             return View(kluby);
+        }
+
+        [Authorize]
+        public async Task<IActionResult> MojePlany()
+        {
+            // Pobieramy ID zalogowanego użytkownika
+            var uzytkownikIdKlaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(uzytkownikIdKlaim) || !int.TryParse(uzytkownikIdKlaim, out int loggedInUserId))
+            {
+                return RedirectToAction("Login", "Account"); // Lub "Konto", w zależności jak masz nazwany kontroler logowania
+            }
+
+            // Pobieramy plany przypisane do tego użytkownika wraz z danymi
+            var mojePlany = await _context.PlanyTreningowe
+                .Include(p => p.Trener)
+                    .ThenInclude(t => t.Uzytkownik)
+                    .ThenInclude(u => u.Profil)
+                .Include(p => p.Cwiczenia)
+                .Where(p => p.UzytkownikId == loggedInUserId)
+                .OrderByDescending(p => p.DataStworzenia)
+                .ToListAsync();
+
+            return View(mojePlany);
         }
     }
 }

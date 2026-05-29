@@ -47,6 +47,10 @@ namespace KanGainNET.Data
                 .WithOne(p => p.Uzytkownik)
                 .HasForeignKey<Pracownik>(p => p.UzytkownikId);
 
+            modelBuilder.Entity<PlanTreningowy>()
+                .HasMany(p => p.Cwiczenia)
+                .WithMany(c => c.PlanyTreningowe);
+
             // 3. Globalne wyłączenie CASCADE DELETE
             // Zapobiega błędowi SQL Server: "Introducing FOREIGN KEY constraint may cause multiple cascade paths"
             foreach (var relationship in modelBuilder.Model.GetEntityTypes().SelectMany(e => e.GetForeignKeys()))

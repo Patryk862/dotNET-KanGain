@@ -4,6 +4,7 @@ using KanGainNET.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace KanGainNET.Migrations
 {
     [DbContext(typeof(SilowniaContext))]
-    partial class SilowniaContextModelSnapshot : ModelSnapshot
+    [Migration("20260514131626_poprawaTabeliSprzet")]
+    partial class poprawaTabeliSprzet
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -21,21 +24,6 @@ namespace KanGainNET.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
-
-            modelBuilder.Entity("CwiczeniePlanTreningowy", b =>
-                {
-                    b.Property<int>("CwiczeniaId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("PlanyTreningoweId")
-                        .HasColumnType("int");
-
-                    b.HasKey("CwiczeniaId", "PlanyTreningoweId");
-
-                    b.HasIndex("PlanyTreningoweId");
-
-                    b.ToTable("CwiczeniePlanTreningowy");
-                });
 
             modelBuilder.Entity("KanGainNET.Models.Cwiczenie", b =>
                 {
@@ -197,9 +185,6 @@ namespace KanGainNET.Migrations
 
                     b.Property<string>("Nazwa")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Opis")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("PracownikId")
@@ -546,21 +531,6 @@ namespace KanGainNET.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("ZajeciaGrupowe");
-                });
-
-            modelBuilder.Entity("CwiczeniePlanTreningowy", b =>
-                {
-                    b.HasOne("KanGainNET.Models.Cwiczenie", null)
-                        .WithMany()
-                        .HasForeignKey("CwiczeniaId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("KanGainNET.Models.PlanTreningowy", null)
-                        .WithMany()
-                        .HasForeignKey("PlanyTreningoweId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
                 });
 
             modelBuilder.Entity("KanGainNET.Models.Grafik", b =>

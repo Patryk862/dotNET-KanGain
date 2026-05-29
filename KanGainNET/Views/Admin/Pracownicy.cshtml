@@ -1,0 +1,104 @@
+﻿@model IEnumerable<KanGainNET.Models.Uzytkownik>
+
+<div class="container mt-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="text-white text-uppercase fw-bold m-0">Zarządzanie Kadrą i Uprawnieniami</h2>
+
+        <form method="get" asp-controller="AdminPracownicy" asp-action="Index" class="d-flex gap-2" style="max-width: 300px;">
+            <input type="text" name="searchString" value="@ViewBag.SearchString" class="form-control bg-dark text-white border-secondary" placeholder="Szukaj po frazie..." />
+            <button type="submit" class="btn btn-gym fw-bold">Szukaj</button>
+        </form>
+    </div>
+
+    <div class="card bg-dark border-secondary shadow">
+        <div class="table-responsive">
+            <table class="table table-dark table-hover mb-0 align-middle">
+                <thead>
+                    <tr class="text-secondary small">
+                        <th>ID UŻYTKOWNIKA</th>
+                        <th>IMIĘ I NAZWISKO</th>
+                        <th>ADRES EMAIL</th>
+                        <th>SPECJALIZACJA</th>
+                        <th>ROLA</th>
+                        <th class="text-end" style="min-width: 280px;">WYBÓR ROLI</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td class="text-secondary">@item.Id</td>
+                            <td class="fw-bold text-uppercase">
+                                @item.Profil?.Imie @item.Profil?.Nazwisko
+                            </td>
+                            <td>@item.Email</td>
+
+                            <td>
+                                @if (item.RolaId == 3)
+                                {
+                                    <form asp-controller="AdminPracownicy" asp-action="ZmienSpecjalizacje" method="post" class="d-inline">
+                                        <input type="hidden" name="id" value="@item.Id" />
+                                        <select name="specjalizacja" class="form-select form-select-sm bg-dark text-white border-secondary" onchange="this.form.submit()" style="max-width: 160px;">
+                                            @foreach (var spec in ViewBag.Specjalizacje ?? new List<string>())
+                                            {
+                                                <!option value="@spec" @(item.Pracownik?.Specjalizacja == spec ? "selected" : "")>@spec</!option>
+                                            }
+                                        </select>
+                                    </form>
+                                }
+                                else
+                                {
+                                    <select class="form-select form-select-sm bg-dark text-muted border-secondary" disabled style="max-width: 160px; opacity: 0.5;">
+                                        <option>Brak</option>
+                                    </select>
+                                }
+                            </td>
+
+                            <td>
+                                @{
+                                    var klasaRoli = item.RolaId == 3 ? "text-warning" : (item.RolaId == 1 ? "text-danger" : "text-info");
+                                }
+                                <span class="@klasaRoli fw-bold small text-uppercase">● @item.Rola?.Nazwa</span>
+                            </td>
+
+                            <td class="text-end">
+                                <div class="d-inline-flex gap-2 align-items-center">
+                                    @if (item.RolaId != 1)
+                                    {
+                                        <form asp-controller="AdminPracownicy" asp-action="ZmienRole" method="post" class="d-inline">
+                                            <input type="hidden" name="id" value="@item.Id" />
+                                            <input type="hidden" name="nowaRolaId" value="2" />
+                                            <button type="submit" class="btn btn-sm @(item.RolaId == 2 ? "btn-info text-dark fw-bold" : "btn-outline-info")" @(item.RolaId == 2 ? "disabled type=button" : "")>
+                                                Użytkownik
+                                            </button>
+                                        </form>
+
+                                        <form asp-controller="AdminPracownicy" asp-action="ZmienRole" method="post" class="d-inline">
+                                            <input type="hidden" name="id" value="@item.Id" />
+                                            <input type="hidden" name="nowaRolaId" value="3" />
+                                            <button type="submit" class="btn btn-sm @(item.RolaId == 3 ? "btn-warning text-dark fw-bold" : "btn-outline-warning")" @(item.RolaId == 3 ? "disabled type=button" : "")>
+                                                Trener
+                                            </button>
+                                        </form>
+
+                                        <form asp-controller="AdminPracownicy" asp-action="Usun" method="post" class="d-inline ms-2">
+                                            <input type="hidden" name="id" value="@item.Id" />
+                                            <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('Usunąć użytkownika NA ZAWSZE z bazy?')">Usuń</button>
+                                        </form>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-danger small fw-bold text-uppercase me-3">GŁÓWNY ADMIN</span>
+                                    }
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="mt-4">
+        <a asp-controller="Admin" asp-action="Index" class="btn btn-outline-light rounded-pill px-4">Wróć</a>
+    </div>
+</div>
