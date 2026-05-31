@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi;
 
 var builder = WebApplication.CreateBuilder(args);
+QuestPDF.Settings.License = QuestPDF.Infrastructure.LicenseType.Community;
 
 // 1. Pobierz Connection String z appsettings.json
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") 

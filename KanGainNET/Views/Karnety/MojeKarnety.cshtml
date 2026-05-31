@@ -21,13 +21,14 @@
                         <th>Ważność (Od - Do)</th>
                         <th>Cena</th>
                         <th class="text-center">Status</th>
+                        <th class="text-center">Akcje</th>
                     </tr>
                 </thead>
                 <tbody>
                     @if (Model == null || !Model.Any())
                     {
                         <tr>
-                            <td colspan="4" class="text-center py-5 text-secondary italic">
+                            <td colspan="5" class="text-center py-5 text-secondary italic">
                                 Nie masz jeszcze żadnych karnetów. Czas ruszyć na trening!
                             </td>
                         </tr>
@@ -36,7 +37,6 @@
                     {
                         @foreach (var sub in Model)
                         {
-                            // Logika sprawdzania statusu na podstawie dat
                             var teraz = DateTime.Now;
                             string statusTekst;
                             string badgeKlasa;
@@ -69,6 +69,17 @@
                                     <span class="badge rounded-pill @badgeKlasa px-3 py-2" style="min-width: 100px;">
                                         @statusTekst
                                     </span>
+                                </td>
+                                <td class="text-center">
+                                    <a asp-controller="Karnety"
+                                       asp-action="PobierzPotwierdzeniePdf"
+                                       asp-route-id="@sub.Id"
+                                       class="btn btn-sm rounded-pill"
+                                       style="border: 1px solid var(--gym-primary); color: var(--gym-primary); transition: 0.3s;"
+                                       onmouseover="this.style.backgroundColor='var(--gym-primary)'; this.style.color='white';"
+                                       onmouseout="this.style.backgroundColor='transparent'; this.style.color='var(--gym-primary)';">
+                                        <i class="bi bi-file-earmark-pdf me-1"></i> Pobierz PDF
+                                    </a>
                                 </td>
                             </tr>
                         }
