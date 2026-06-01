@@ -9,7 +9,8 @@ Kompleksowa, chmurowa aplikacja webowa do zarządzania klubem fitness, zbudowana
 
 ## 👥 Autorzy
 * **Patryk Romanowicz**
-* **Romek** * *(Wpisz imię i nazwisko trzeciej osoby z grupy)*
+* **Michał Chmontowski**
+* **Szymon Masalski**
 
 ---
 
