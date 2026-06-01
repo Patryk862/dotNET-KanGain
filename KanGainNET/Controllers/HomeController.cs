@@ -11,22 +11,18 @@ namespace KanGainNET.Controllers
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
-        private readonly SilowniaContext _context; // Dodane pole na bazę danych
+        private readonly SilowniaContext _context; 
 
-        // Wstrzykujemy oba serwisy przez konstruktor
         public HomeController(ILogger<HomeController> logger, SilowniaContext context)
         {
             _logger = logger;
             _context = context;
         }
 
-        // Zmieniamy na async Task, żeby asynchronicznie pobrać dane z bazy
         public async Task<IActionResult> Index()
         {
-            // Pobieramy listę karnetów z bazy danych
             var karnety = await _context.TypyKarnetow.ToListAsync();
             
-            // Przekazujemy listę do widoku (Index.cshtml)
             return View(karnety);
         }
 
@@ -50,14 +46,12 @@ namespace KanGainNET.Controllers
         [Authorize]
         public async Task<IActionResult> MojePlany()
         {
-            // Pobieramy ID zalogowanego użytkownika
             var uzytkownikIdKlaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (string.IsNullOrEmpty(uzytkownikIdKlaim) || !int.TryParse(uzytkownikIdKlaim, out int loggedInUserId))
             {
-                return RedirectToAction("Login", "Account"); // Lub "Konto", w zależności jak masz nazwany kontroler logowania
+                return RedirectToAction("Login", "Account"); 
             }
 
-            // Pobieramy plany przypisane do tego użytkownika wraz z danymi
             var mojePlany = await _context.PlanyTreningowe
                 .Include(p => p.Trener)
                     .ThenInclude(t => t.Uzytkownik)

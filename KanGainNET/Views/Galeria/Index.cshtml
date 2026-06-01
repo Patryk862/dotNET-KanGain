@@ -4,43 +4,7 @@
     ViewData["Title"] = "Galeria Siłowni";
 }
 
-<style>
-    /* Elastyczny CSS Grid dopasowujący liczbę kolumn do szerokości ekranu */
-    .galeria-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-        gap: 24px;
-        padding: 20px 0;
-    }
-
-    .galeria-item {
-        position: relative;
-        overflow: hidden;
-        border: 2px solid #222;
-        border-radius: 12px;
-        background-color: #000;
-        aspect-ratio: 4/3; /* Wymuszenie jednakowych proporcji dla wszystkich kafelków */
-        transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
-    }
-
-    /* Efekt po najechaniu myszką - dopasowany do stylu KanGain */
-    .galeria-item:hover {
-        transform: translateY(-5px);
-        border-color: #ff5500; /* Pomarańczowy akcent klubowy */
-        box-shadow: 0 10px 25px rgba(255, 85, 0, 0.25);
-    }
-
-    .galeria-img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover; /* Wypełnienie kadru bez zniekształceń */
-        transition: transform 0.5s ease;
-    }
-
-    .galeria-item:hover .galeria-img {
-        transform: scale(1.08); /* Delikatny zoom zdjęcia wewnątrz kafelka */
-    }
-</style>
+<link rel="stylesheet" href="~/css/galeria.css" asp-append-version="true" />
 
 <div class="container mt-5">
     <div class="text-center mb-5">
