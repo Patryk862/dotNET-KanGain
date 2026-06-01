@@ -55,7 +55,7 @@ namespace KanGainNET.Controllers
                 uzytkownik.RolaId = nowaRolaId;
                 var pracownikWpis = await _context.Pracownicy.FirstOrDefaultAsync(p => p.UzytkownikId == id);
 
-                if (nowaRolaId == 3) // Awans na Pracownika
+                if (nowaRolaId == 3) 
                 {
                     if (pracownikWpis == null)
                     {
@@ -68,18 +68,16 @@ namespace KanGainNET.Controllers
                         });
                     }
                 }
-                else if (nowaRolaId == 2) // Degradacja na Użytkownika
+                else if (nowaRolaId == 2) 
                 {
                     if (pracownikWpis != null)
                     {
-                        // 1. Usuń wszystkie zajęcia w grafiku przypisane do tego trenera
                         var zajeciaWGrafiku = await _context.Grafiki.Where(g => g.PracownikId == pracownikWpis.Id).ToListAsync();
                         if (zajeciaWGrafiku.Any())
                         {
                             _context.Grafiki.RemoveRange(zajeciaWGrafiku);
                         }
 
-                        // 2. Usuń wszystkie plany treningowe ułożone przez tego trenera
                         var planyTreningowe = await _context.PlanyTreningowe.Where(p => p.PracownikId == pracownikWpis.Id).ToListAsync();
                         if (planyTreningowe.Any())
                         {
@@ -119,14 +117,12 @@ namespace KanGainNET.Controllers
             {
                 if (uzytkownik.Pracownik != null) 
                 {
-                    // 1. Usuń zajęcia z grafiku
                     var zajeciaWGrafiku = await _context.Grafiki.Where(g => g.PracownikId == uzytkownik.Pracownik.Id).ToListAsync();
                     if (zajeciaWGrafiku.Any())
                     {
                         _context.Grafiki.RemoveRange(zajeciaWGrafiku);
                     }
 
-                    // 2. Usuń plany treningowe
                     var planyTreningowe = await _context.PlanyTreningowe.Where(p => p.PracownikId == uzytkownik.Pracownik.Id).ToListAsync();
                     if (planyTreningowe.Any())
                     {
