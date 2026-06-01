@@ -1,8 +1,5 @@
 using System;
 using System.Collections.Generic;
-
-// Upewnij się, że ten namespace zgadza się z innymi Twoimi modelami w tym folderze 
-// (zazwyczaj jest to KanGainNET.Models lub KanGainNET.Models.Data)
 namespace KanGainNET.Models
 {
     public class Grafik

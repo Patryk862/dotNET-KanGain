@@ -32,11 +32,11 @@ namespace KanGainNET.Data
         {
             base.OnModelCreating(modelBuilder);
 
-            // 1. Definicja precyzji dla typów finansowych (wymagane w SQL Server)
+            // Definicja precyzji dla typów finansowych
             modelBuilder.Entity<Platnosc>().Property(p => p.Kwota).HasPrecision(18, 2);
             modelBuilder.Entity<TypKarnetu>().Property(t => t.Cena).HasPrecision(18, 2);
 
-            // 2. Definicje relacji 1:1 (Jeden użytkownik ma jeden profil i jedno stanowisko pracownika)
+            // Definicje relacji 1:1
             modelBuilder.Entity<Uzytkownik>()
                 .HasOne(u => u.Profil)
                 .WithOne(p => p.Uzytkownik)
@@ -51,8 +51,7 @@ namespace KanGainNET.Data
                 .HasMany(p => p.Cwiczenia)
                 .WithMany(c => c.PlanyTreningowe);
 
-            // 3. Globalne wyłączenie CASCADE DELETE
-            // Zapobiega błędowi SQL Server: "Introducing FOREIGN KEY constraint may cause multiple cascade paths"
+            // Globalne wyłączenie CASCADE DELETE
             foreach (var relationship in modelBuilder.Model.GetEntityTypes().SelectMany(e => e.GetForeignKeys()))
             {
                 relationship.DeleteBehavior = DeleteBehavior.Restrict;

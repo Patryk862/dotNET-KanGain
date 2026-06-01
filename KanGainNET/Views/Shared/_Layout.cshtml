@@ -21,7 +21,6 @@
                         <li class="nav-item">
                             <a class="nav-link text-white text-uppercase fw-bold" asp-controller="Galeria" asp-action="Index">Galeria</a>
                         </li>
-                        <!-- Widoczne tylko dla Administratora -->
                         @if (User.IsInRole("Admin"))
                         {
                             <li class="nav-item">
@@ -29,7 +28,6 @@
                             </li>
                         }
 
-                        <!-- Widoczne tylko dla Pracownika / Trenera -->
                         @if (User.IsInRole("Trener"))
                         {
                             <li class="nav-item">

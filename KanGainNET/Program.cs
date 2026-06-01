@@ -6,22 +6,22 @@ using Microsoft.OpenApi;
 var builder = WebApplication.CreateBuilder(args);
 QuestPDF.Settings.License = QuestPDF.Infrastructure.LicenseType.Community;
 
-// 1. Pobierz Connection String z appsettings.json
+// Connection String z appsettings.json
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") 
     ?? throw new InvalidOperationException("Nie znaleziono Connection String 'DefaultConnection'.");
 
-// 2. Dodaj Context do kontenera DI
+// DB Context do kontenera DI
 builder.Services.AddDbContext<SilowniaContext>(options => options.UseSqlServer(connectionString));
 
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(options =>
     {
-        options.LoginPath = "/Konto/Logowanie"; // Gdzie odesłać niezalogowanego
+        options.LoginPath = "/Konto/Logowanie";
         options.LogoutPath = "/Konto/Wyloguj";
         options.Cookie.Name = "KanGainAuth";
     });
 
-// Dodaj obsługę kontrolerów i widoków (MVC)
+// Obsługa kontrolerów i widoków (MVC)
 builder.Services.AddControllersWithViews();
 
 //Swagger
@@ -36,6 +36,7 @@ builder.Services.AddSwaggerGen(c =>
     });
 });
 
+// Serwis RFID - działa tylko w wersji lokalnej, w produkcji jest wyłączony, ponieważ nie ma fizycznego czytnika
 //builder.Services.AddSingleton<RFIDReaderService>();
 Stripe.StripeConfiguration.ApiKey = builder.Configuration.GetSection("Stripe:SecretKey").Get<string>();
 
@@ -50,6 +51,7 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
 }
 
+// Do swaggera tylko w dev env
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();

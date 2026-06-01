@@ -5,6 +5,7 @@
 }
 
 <link rel="stylesheet" href="~/css/galeria.css" asp-append-version="true" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 
 <div class="container mt-5">
     <div class="text-center mb-5">
@@ -13,28 +14,78 @@
         <hr class="border-secondary opacity-25 mx-auto" style="max-width: 80px; border-width: 3px;">
     </div>
 
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show bg-success text-white border-0 mb-4" role="alert">
+            @TempData["Success"]
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show bg-danger text-white border-0 mb-4" role="alert">
+            @TempData["Error"]
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    @if (User.IsInRole("Admin"))
+    {
+        <div class="card bg-dark text-white border-secondary mb-5 mx-auto" style="max-width: 600px;">
+            <div class="card-header border-secondary bg-black bg-opacity-25 py-3">
+                <h5 class="m-0 text-uppercase small fw-bold text-gym"><i class="bi bi-gear-fill me-2"></i>Panel Zarządzania Galerią</h5>
+            </div>
+            <div class="card-body p-4">
+                <form asp-action="Zapisz" asp-controller="Galeria" method="post" enctype="multipart/form-data">
+                    <div class="mb-3">
+                        <label for="plikObrazu" class="form-label text-secondary small">Wybierz zdjęcie z dysku (JPG, PNG, WEBP):</label>
+                        <input class="form-control bg-secondary bg-opacity-10 text-white border-secondary" type="file" id="plikObrazu" name="plikObrazu" accept=".jpg,.jpeg,.png,.webp" required>
+                    </div>
+                    <button type="submit" class="btn btn-danger w-100 text-uppercase fw-bold text-white shadow">
+                        <i class="bi bi-upload me-2"></i>Dodaj zdjęcie do galerii
+                    </button>
+                </form>
+            </div>
+        </div>
+    }
+
     @if (Model == null || !Model.Any())
     {
-        @* Komunikat ratunkowy, jeśli folder byłby pusty *@
-        <div class="card bg-dark text-white border-secondary text-center p-5 mx-auto" style="max-width: 500px;">
+        <div class="card bg-dark text-white border-secondary text-center p-5 mx-auto mb-5" style="max-width: 500px;">
             <div class="card-body">
                 <i class="bi bi-images text-secondary mb-3" style="font-size: 3rem;"></i>
                 <h5 class="fw-bold text-uppercase">Brak zdjęć w galerii</h5>
-                <p class="text-secondary small card-text mt-2">
-                    Dodaj pliki graficzne do folderu <br />
-                    <code>wwwroot/images/galeria/</code> na serwerze, aby wyświetlić je w tym miejscu.
-                </p>
+
+                @if (User.IsInRole("Admin"))
+                {
+                    <p class="text-secondary small card-text mt-2">
+                        Użyj powyższego formularza lub dodaj pliki graficzne do folderu <br />
+                        <code>/ZdjeciaGalerii</code> na serwerze.
+                    </p>
+                }
             </div>
         </div>
     }
     else
     {
         <div class="galeria-grid">
-            @foreach (var sciezkaZdjecia in Model)
+            @foreach (var nazwaPliku in Model)
             {
-                <div class="galeria-item shadow-lg">
-                    @* loading="lazy" optymalizuje ładowanie strony i oszczędza transfer na Azure *@
-                    <img src="@sciezkaZdjecia" alt="Zdjęcie wnętrza silowni KanGain" class="galeria-img" loading="lazy" />
+                <div class="galeria-item shadow-lg position-relative group">
+                    <img src="@Url.Action("Zdjecie", "Galeria", new { nazwa = nazwaPliku })" alt="Zdjęcie wnętrza silowni KanGain" class="galeria-img" loading="lazy" />
+
+                    @if (User.IsInRole("Admin"))
+                    {
+                        <div class="pozycja-usun">
+                            <form asp-action="Usun" asp-controller="Galeria" method="post" onsubmit="return confirm('Czy na pewno chcesz usunąć to zdjęcie?');">
+                                <input type="hidden" name="nazwa" value="@nazwaPliku" />
+                                <button type="submit" class="btn btn-danger btn-sm rounded-circle shadow" title="Usuń zdjęcie">
+                                    <i class="bi bi-trash3-fill"></i>
+                                </button>
+                            </form>
+                        </div>
+                    }
+                    
                 </div>
             }
         </div>

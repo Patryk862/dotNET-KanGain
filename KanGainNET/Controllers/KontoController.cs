@@ -57,7 +57,7 @@ namespace KanGainNET.Controllers
             return RedirectToAction("Logowanie"); 
         }
 
-        // --- LOGOWANIE ---
+        // Logowanie
         [HttpGet]
         public IActionResult Logowanie()
         {
@@ -74,7 +74,7 @@ namespace KanGainNET.Controllers
 
             string zhashowaneHaslo = HashujHaslo(model.Haslo);
 
-            // Szukamy użytkownika w bazie i od razu "wyciągamy" jego Profil i Rolę
+            // Szukamy użytkownika w bazie
             var uzytkownik = await _context.Uzytkownicy
                 .Include(u => u.Profil)
                 .Include(u => u.Rola)
@@ -86,7 +86,7 @@ namespace KanGainNET.Controllers
                 return View(model);
             }
 
-            // Tworzenie "dowodu tożsamości" (Claims) dla ciasteczka
+            // Tworzenie Claims dla ciasteczka logowania
             var claims = new List<Claim>
             {
                 new Claim(ClaimTypes.NameIdentifier, uzytkownik.Id.ToString()),
@@ -105,7 +105,7 @@ namespace KanGainNET.Controllers
             return RedirectToAction("Index", "Home");
         }
 
-        // --- WYLOGOWANIE ---
+        // Wylogowanie
         [HttpPost]
         public async Task<IActionResult> Wyloguj()
         {
@@ -114,7 +114,7 @@ namespace KanGainNET.Controllers
             return RedirectToAction("Index", "Home");
         }
 
-        // --- HASHOWANIE ---
+        // Hashowanie hasła za pomocą SHA256
         private string HashujHaslo(string haslo)
         {
             if (string.IsNullOrEmpty(haslo)) return string.Empty;
