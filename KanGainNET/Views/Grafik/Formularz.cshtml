@@ -1,6 +1,10 @@
 @model KanGainNET.Models.ViewModels.GrafikViewModel
 
 @{
+    ViewData["Title"] = "Grafik";
+}
+
+@{
     ViewData["Title"] = Model.CzyTylkoOdczyt ? "Szczegóły Zajęć" : (Model.Id.HasValue ? "Edycja" : "Nowa Rezerwacja");
     bool isStaff = User.IsInRole("Admin") || User.IsInRole("Pracownik");
 }
