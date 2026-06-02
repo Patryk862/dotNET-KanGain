@@ -1,9 +1,14 @@
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.EntityFrameworkCore;
-using KanGainNET.Models;
 using KanGainNET.Data;
+using KanGainNET.Models;
 using KanGainNET.Models.ViewModels;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace KanGainNET.Controllers
 {
@@ -94,6 +99,16 @@ namespace KanGainNET.Controllers
                 model.DostepniPracownicy = await _context.Pracownicy.Include(p => p.Uzytkownik).ToListAsync();
             }
 
+            var listaTrenerowDropdown = model.DostepniPracownicy.Select(p => new
+            {
+                Id = p.Id,
+                Text = p.Uzytkownik?.Profil != null && !string.IsNullOrEmpty(p.Uzytkownik.Profil.Imie)
+                    ? $"{p.Uzytkownik.Profil.Imie} {p.Uzytkownik.Profil.Nazwisko} ({p.Uzytkownik.Email})"
+                    : p.Uzytkownik?.Email ?? "Nieznany"
+            }).ToList();
+
+            ViewBag.PracownikId = new SelectList(listaTrenerowDropdown, "Id", "Text", model.PracownikId);
+
             return View(model);
         }
 
@@ -155,6 +170,16 @@ namespace KanGainNET.Controllers
                 {
                     model.DostepniPracownicy = await _context.Pracownicy.Include(p => p.Uzytkownik).ToListAsync();
                 }
+
+                var listaTrenerowDropdown = model.DostepniPracownicy.Select(p => new
+                {
+                    Id = p.Id,
+                    Text = p.Uzytkownik?.Profil != null && !string.IsNullOrEmpty(p.Uzytkownik.Profil.Imie)
+                        ? $"{p.Uzytkownik.Profil.Imie} {p.Uzytkownik.Profil.Nazwisko} ({p.Uzytkownik.Email})"
+                        : p.Uzytkownik?.Email ?? "Nieznany"
+                }).ToList();
+
+                ViewBag.PracownikId = new SelectList(listaTrenerowDropdown, "Id", "Text", model.PracownikId);
 
                 return View("Formularz", model);
             }

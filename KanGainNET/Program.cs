@@ -73,4 +73,25 @@ app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
 
+//FAKER DANYCH
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    try
+    {
+        var context = services.GetRequiredService<SilowniaContext>();
+
+        // 1. Sprawdź, czy na Azure brakuje jakichś tabel/kolumn z nowych migracji i je utwórz
+        await context.Database.MigrateAsync();
+
+        // 2. Uruchom skrypt masowego generowania danych Bogus
+        await KanGainNET.Data.DbSeeder.SeedAsync(context);
+    }
+    catch (Exception ex)
+    {
+        throw;
+        // Jeśli chmura rzuci błędem, zobaczysz go w konsoli debugowania
+    }
+}
+
 app.Run();

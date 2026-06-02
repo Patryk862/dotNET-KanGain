@@ -26,10 +26,10 @@
 
                 <div class="mb-3">
                     <label class="small text-secondary">SALA</label>
-                    <select name="SalaId" class="form-select bg-black text-white border-secondary" @(Model.CzyTylkoOdczyt ? "disabled" : "")>
+                    <select asp-for="SalaId" class="form-select bg-black text-white border-secondary" disabled="@Model.CzyTylkoOdczyt">
                         @foreach (var s in Model.DostepneSale)
                         {
-                            <!option value="@s.Id" @(s.Id == Model.SalaId ? "selected" : "")>@s.Nazwa</!option>
+                            <option value="@s.Id">@s.Nazwa</option>
                         }
                     </select>
                 </div>
@@ -42,7 +42,6 @@
                     }
                     else
                     {
-
                         <input type="date" id="InputData" class="form-control bg-black text-white border-secondary" value="@Model.DataStart.ToString("yyyy-MM-dd")" required />
                     }
                 </div>
@@ -50,19 +49,19 @@
                 <div class="row mb-3">
                     <div class="col-6">
                         <label class="small text-secondary">START</label>
-                        <select id="SelectStart" class="form-select bg-black text-white border-secondary" @(Model.CzyTylkoOdczyt ? "disabled" : "")>
+                        <select id="SelectStart" class="form-select bg-black text-white border-secondary" disabled="@Model.CzyTylkoOdczyt">
                             @foreach (var g in Model.ListaGodzinDropdown)
                             {
-                                <!option value="@g" @(g == Model.DataStart.ToString("HH:mm") ? "selected" : "")>@g</!option>
+                                <option value="@g" selected="@(g == Model.DataStart.ToString("HH:mm"))">@g</option>
                             }
                         </select>
                     </div>
                     <div class="col-6">
                         <label class="small text-secondary">KONIEC</label>
-                        <select id="SelectKoniec" class="form-select bg-black text-white border-secondary" @(Model.CzyTylkoOdczyt ? "disabled" : "")>
+                        <select id="SelectKoniec" class="form-select bg-black text-white border-secondary" disabled="@Model.CzyTylkoOdczyt">
                             @foreach (var g in Model.ListaGodzinDropdown)
                             {
-                                <!option value="@g" @(g == Model.DataKoniec.ToString("HH:mm") ? "selected" : "")>@g</!option>
+                                <option value="@g" selected="@(g == Model.DataKoniec.ToString("HH:mm"))">@g</option>
                             }
                         </select>
                     </div>
@@ -75,11 +74,11 @@
                 {
                     <div class="mb-3">
                         <label class="small text-secondary">ZAJĘCIA</label>
-                        <select id="ZajeciaSelect" name="ZajeciaGrupoweId" class="form-select bg-black text-white border-secondary" @(Model.CzyTylkoOdczyt ? "disabled" : "")>
+                        <select id="ZajeciaSelect" asp-for="ZajeciaGrupoweId" class="form-select bg-black text-white border-secondary" disabled="@Model.CzyTylkoOdczyt">
                             <option value="">-- Brak --</option>
                             @foreach (var zg in Model.DostepneZajecia)
                             {
-                                <!option value="@zg.Id" @(zg.Id == Model.ZajeciaGrupoweId ? "selected" : "")>@zg.Nazwa</!option>
+                                <option value="@zg.Id">@zg.Nazwa</option>
                             }
                         </select>
                     </div>
@@ -90,14 +89,14 @@
                 {
                     <div class="mb-4">
                         <label class="small text-secondary">PROWADZĄCY TRENER</label>
-                        <select id="TrenerSelect" name="PracownikId" class="form-select bg-black text-white border-secondary" @(Model.CzyTylkoOdczyt ? "disabled" : "")>
+                        <select id="TrenerSelect" asp-for="PracownikId" class="form-select bg-black text-white border-secondary" disabled="@Model.CzyTylkoOdczyt">
                             <option value="">-- Brak --</option>
                             @foreach (var p in Model.DostepniPracownicy)
                             {
                                 var nazwaTrenera = p.Uzytkownik?.Profil != null && !string.IsNullOrEmpty(p.Uzytkownik.Profil.Imie)
                                     ? $"{p.Uzytkownik.Profil.Imie} {p.Uzytkownik.Profil.Nazwisko} ({p.Uzytkownik.Email})"
                                     : p.Uzytkownik?.Email;
-                                <!option value="@p.Id" @(p.Id == Model.PracownikId ? "selected" : "")>@nazwaTrenera</!option>
+                                <option value="@p.Id">@nazwaTrenera</option>
                             }
                         </select>
                     </div>
@@ -162,35 +161,45 @@
                 if (inData) inData.addEventListener('change', walidujCzas);
             }
 
-            if (zajeciaSelect && trenerSelect && !czyOdczyt) {
-                zajeciaSelect.addEventListener('change', function () {
-                    const idZajecia = this.value;
-                    const obecnyTrenerId = trenerSelect.value;
+            if (zajeciaSelect && trenerSelect) {
+                function zaladujTrenerow() {
+                    const idZajecia = zajeciaSelect.value;
+                    const obecnyTrenerId = "@Model.PracownikId" || trenerSelect.value;
 
                     if (!idZajecia) {
                         trenerSelect.innerHTML = '<option value="">-- Brak --</option>';
                         return;
                     }
 
-                    trenerSelect.innerHTML = '<option value="">Ładowanie trenerów...</option>';
+                    if (!trenerSelect.value) {
+                        trenerSelect.innerHTML = '<option value="">Ładowanie trenerów...</option>';
+                    }
 
                     fetch(`/Grafik/PobierzTrenerowPoZajeciach?zajeciaGrupoweId=${idZajecia}`)
                         .then(res => res.json())
                         .then(data => {
-                            const maObecnego = data.some(t => t.id == obecnyTrenerId);
-                            const zaznaczId = maObecnego ? obecnyTrenerId : (data[0]?.id || '');
+                            const zaznaczId = obecnyTrenerId || (data[0]?.id || '');
 
                             trenerSelect.innerHTML = '<option value="">-- Brak --</option>' +
                                 data.map(t => `<option value="${t.id}" ${t.id == zaznaczId ? 'selected' : ''}>${t.text}</option>`).join('');
                         })
                         .catch(() => {
-                            trenerSelect.innerHTML = '<option value="">Błąd ładowania danych</option>';
+                            if (!czyOdczyt) {
+                                trenerSelect.innerHTML = '<option value="">Błąd ładowania danych</option>';
+                            }
                         });
-                });
+                }
+
+                if (zajeciaSelect.value) {
+                    zaladujTrenerow();
+                }
+
+                if (!czyOdczyt) {
+                    zajeciaSelect.addEventListener('change', zaladujTrenerow);
+                }
             }
 
             walidujCzas();
         });
     </script>
-}
 }
