@@ -12,6 +12,8 @@ using System.Security.Claims;
 using QuestPDF.Fluent;
 using QuestPDF.Helpers;
 using QuestPDF.Infrastructure;
+using Microsoft.AspNetCore.Hosting;
+using System.IO;
 
 namespace KanGainNET.Controllers
 {
@@ -19,10 +21,13 @@ namespace KanGainNET.Controllers
     public class KarnetyController : Controller
     {
         private readonly SilowniaContext _context;
+        private readonly IWebHostEnvironment _env;
 
-        public KarnetyController(SilowniaContext context)
+        // Wstrzykujemy IWebHostEnvironment, aby mieć dostęp do folderu wwwroot
+        public KarnetyController(SilowniaContext context, IWebHostEnvironment env)
         {
             _context = context;
+            _env = env;
         }
 
         [HttpPost]
@@ -154,6 +159,9 @@ namespace KanGainNET.Controllers
             var platnosc = await _context.Platnosci.FirstOrDefaultAsync(p => p.SubskrypcjaId == id);
             string metodaPlatnosci = platnosc != null ? platnosc.Metoda : "Płatność online";
 
+            // Budowanie fizycznej ścieżki do pliku z logo
+            string logoPath = Path.Combine(_env.WebRootPath, "images", "logo.png");
+
             var document = Document.Create(container =>
             {
                 container.Page(page =>
@@ -165,9 +173,15 @@ namespace KanGainNET.Controllers
 
                     page.Header().Row(row =>
                     {
-                        row.RelativeItem().Column(col =>
+                        // Zabezpieczenie: ładujemy obrazek tylko wtedy, gdy faktycznie istnieje na dysku
+                        if (System.IO.File.Exists(logoPath))
                         {
-                            col.Item().Text("KanGain").FontSize(28).SemiBold().FontColor("#ff4500");
+                            row.ConstantItem(60).Image(logoPath); // ConstantItem ustawia szerokość logo w dokumencie
+                        }
+
+                        row.RelativeItem().PaddingLeft(10).Column(col =>
+                        {
+                            col.Item().Text("KanGain").FontSize(40).SemiBold().FontColor("#ff4500");
                             col.Item().Text("Najlepsza Kuźnia Żelastwa w Mieście").FontSize(10).FontColor(Colors.Grey.Medium);
                         });
                         row.RelativeItem().AlignRight().Text("Potwierdzenie").FontSize(24).SemiBold();
