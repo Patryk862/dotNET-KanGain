@@ -1,61 +1,136 @@
-﻿@model KanGainNET.Models.ViewModels.DodajPlanViewModel
+﻿@{
+    ViewData["Title"] = "Polityka Prywatności - Siłownia KanGain";
+}
 
-<div class="container mt-5" id="kreator-glowny" data-zapisane-ids="@(Model.WybraneCwiczeniaIds != null ? string.Join(",", Model.WybraneCwiczeniaIds) : "")">
-    <h2 class="text-white text-uppercase fw-bold mb-4">Nowy <span style="color: var(--gym-primary)">Plan</span></h2>
+<link rel="stylesheet" href="~/css/home.css" asp-append-version="true" />
 
-    <form asp-action="ZapiszPlan" method="post">
-        <input type="hidden" asp-for="Id" />
-        <input type="hidden" id="UkrytyOpisParametrow" name="UkrytyOpisParametrow" />
+<div class="container my-5 py-4">
+    <div class="row justify-content-center">
+        <div class="col-md-10 col-lg-8">
+            <div class="feature-card p-4 p-md-5 rounded-4 shadow-lg text-start">
 
-        <div class="row g-4">
-            <div class="col-md-7">
-                <div class="card bg-dark border-secondary p-4 mb-4">
-                    <label class="text-secondary small text-uppercase fw-bold mb-2">Nazwa Planu</label>
-                    <input asp-for="Nazwa" class="form-control bg-dark border-secondary text-white mb-3" placeholder="np. Masa 2026">
+                <h1 class="fw-bold text-uppercase text-center mb-2 text-white">
+                    Polityka <span class="text-gym">Prywatności</span>
+                </h1>
+                <p class="text-secondary text-center mb-5 small">
+                    Ostatnia aktualizacja: @DateTime.Now.ToString("dd.MM.yyyy")
+                </p>
 
-                    <label class="text-secondary small text-uppercase fw-bold mb-2">Dla kogo</label>
-                    <select asp-for="WybranyUzytkownikId" asp-items="Model.Klubowicze" class="form-select bg-dark border-secondary text-white">
-                        <option value="">Wybierz klubowicza...</option>
-                    </select>
-                </div>
+                <p class="lead text-secondary mb-4 fs-6">
+                    Dziękujemy za zaufanie i korzystanie z usług siłowni <strong>KanGain</strong>. Ochrona Twojej prywatności oraz bezpieczeństwo Twoich danych osobowych są dla nas priorytetem. Niniejsza Polityka Prywatności wyjaśnia, jak zbieramy, przetwarzamy, przechowujemy i chronimy Twoje dane w związku z korzystaniem z naszej strony internetowej oraz usług świadczonych stacjonarnie.
+                </p>
 
-                <div class="card bg-dark border-secondary p-4">
-                    <h5 class="text-white mb-3">Wybierz ćwiczenia</h5>
-                    <div class="list-group">
-                        @foreach (var kat in Model.WszystkieCwiczenia.GroupBy(c => c.Kategoria))
-                        {
-                            <div class="text-secondary fw-bold small mt-3 mb-2 text-uppercase">@kat.Key</div>
-                            @foreach (var cw in kat)
-                            {
-                                <div class="list-group-item bg-dark border-secondary d-flex justify-content-between align-items-center">
-                                    <span class="text-white">@cw.Nazwa</span>
-                                    <button type="button" class="btn btn-sm btn-outline-light rounded-pill add-btn"
-                                            data-id="@cw.Id" data-name="@cw.Nazwa">
-                                        Dodaj
-                                    </button>
-                                </div>
-                            }
-                        }
+                <hr class="my-4 border-secondary opacity-25">
+
+                <section class="mb-4">
+                    <h2 class="h5 text-white text-uppercase fw-bold mb-3 border-start border-gym border-4 ps-2">
+                        1. Administrator Danych Osobowych
+                    </h2>
+                    <p class="text-secondary">
+                        Administratorem Twoich danych osobowych jest <strong>KanGain Sp. z o.o.</strong> z siedzibą w Białymstoku (15-312) przy ul. Wiejskiej 10, wpisana do rejestru przedsiębiorców KRS pod numerem: 0000123456, NIP: 1234567890, REGON: 123456789 (zwana dalej: „KanGain” lub „Administratorem”).
+                    </p>
+                    <p class="text-secondary">
+                        W sprawach związanych z ochroną danych osobowych oraz realizacją Twoich praw możesz skontaktować się z nami bezpośrednio drogą mailową na adres:
+                        <a href="mailto:kontakt@kangain.pl" class="text-decoration-none text-gym fw-semibold">kontakt@kangain.pl</a>.
+                    </p>
+                </section>
+
+                <section class="mb-4">
+                    <h2 class="h5 text-white text-uppercase fw-bold mb-3 border-start border-gym border-4 ps-2">
+                        2. Cele i Podstawy Prawne Przetwarzania Danych
+                    </h2>
+                    <p class="text-secondary">Przetwarzamy Twoje dane osobowe zgodnie z przepisami RODO. Dane są zbierane w następujących celach:</p>
+
+                    <div class="table-responsive my-3 rounded-3 border border-secondary border-opacity-25">
+                        <table class="table table-dark table-borderless table-striped align-middle small mb-0">
+                            <thead>
+                                <tr class="border-bottom border-secondary border-opacity-50">
+                                    <th scope="col" class="text-gym text-uppercase py-3" style="width: 30%;">Cel przetwarzania</th>
+                                    <th scope="col" class="text-gym text-uppercase py-3" style="width: 40%;">Zakres danych</th>
+                                    <th scope="col" class="text-gym text-uppercase py-3" style="width: 30%;">Podstawa prawna</th>
+                                </tr>
+                            </thead>
+                            <tbody class="text-secondary">
+                                <tr>
+                                    <td class="text-white"><strong>Obsługa formularza kontaktowego</strong></td>
+                                    <td>Imię, nazwisko, adres e-mail, numer telefonu</td>
+                                    <td>Art. 6 ust. 1 lit. f RODO (prawnie uzasadniony interes)</td>
+                                </tr>
+                                <tr>
+                                    <td class="text-white"><strong>Rejestracja konta i zakup karnetu online</strong></td>
+                                    <td>Imię, nazwisko, adres e-mail, numer telefonu, dane płatności</td>
+                                    <td>Art. 6 ust. 1 lit. b RODO (wykonanie umowy świadczenia usług)</td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
-                </div>
-            </div>
+                </section>
 
-            <div class="col-md-5">
-                <div class="card bg-dark border-secondary p-4 h-100">
-                    <h5 class="text-white mb-3">Twój zestaw:</h5>
-                    <ul id="selected-list" class="list-group mb-4">
+                <section class="mb-4">
+                    <h2 class="h5 text-white text-uppercase fw-bold mb-3 border-start border-gym border-4 ps-2">
+                        3. Okres Przechowywania Danych
+                    </h2>
+                    <p class="text-secondary">Twoje dane osobowe będą przetwarzane wyłącznie przez czas niezbędny do realizacji określonego celu:</p>
+                    <ul class="list-unstyled text-secondary mb-3 ps-2">
+                        <li class="py-1"><span class="text-gym">✔️</span> <strong>Zapytania kontaktowe:</strong> do momentu zakończenia korespondencji lub rozwiązania sprawy.</li>
+                        <li class="py-1"><span class="text-gym">✔️</span> <strong>Konto i karnety:</strong> przez okres trwania umowy o świadczenie usług, a po jej zakończeniu przez czas wymagany przepisami prawa (np. 5 lat dla dokumentacji księgowej).</li>
+                        <li class="py-1"><span class="text-gym">✔️</span> <strong>Marketing i Newsletter:</strong> do momentu wycofania przez Ciebie zgody.</li>
                     </ul>
-                    <button type="submit" class="btn btn-gym w-100 rounded-pill mt-auto">ZAPISZ PLAN</button>
-                </div>
+                </section>
+
+                <section class="mb-4">
+                    <h2 class="h5 text-white text-uppercase fw-bold mb-3 border-start border-gym border-4 ps-2">
+                        4. Odbiorcy Danych
+                    </h2>
+                    <p class="text-secondary">
+                        W celu prawidłowego funkcjonowania serwisu i klubu, Twoje dane mogą być przekazywane zaufanym podmiotom zewnętrznym (na podstawie umów powierzenia przetwarzania):
+                    </p>
+                    <ul class="text-secondary">
+                        <li>Dostawcy systemów IT i oprogramowania do zarządzania klubem (rezerwacje zajęć).</li>
+                        <li>Operatorzy płatności online (w celu bezpiecznego opłacenia karnetów).</li>
+                        <li>Podmioty świadczące usługi księgowe oraz hostingowe.</li>
+                    </ul>
+                    <p class="text-secondary">Nie sprzedajemy ani nie udostępniamy Twoich danych podmiotom trzecim w celach komercyjnych.</p>
+                </section>
+
+                <section class="mb-4">
+                    <h2 class="h5 text-white text-uppercase fw-bold mb-3 border-start border-gym border-4 ps-2">
+                        5. Twoje Prawa
+                    </h2>
+                    <p class="text-secondary">Zgodnie z RODO, przysługuje Ci pełne prawo do kontroli swoich danych osobowych:</p>
+                    <div class="row row-cols-1 row-cols-md-2 g-2 my-2 small text-secondary">
+                        <div class="col"><span class="text-gym">✔️</span> Prawo do dostępu do treści swoich danych</div>
+                        <div class="col"><span class="text-gym">✔️</span> Prawo do sprostowania (poprawiania) danych</div>
+                        <div class="col"><span class="text-gym">✔️</span> Prawo do usunięcia danych ("prawo do bycia zapomnianym")</div>
+                        <div class="col"><span class="text-gym">✔️</span> Prawo do ograniczenia ich przetwarzania</div>
+                        <div class="col"><span class="text-gym">✔️</span> Prawo do przenoszenia danych</div>
+                        <div class="col"><span class="text-gym">✔️</span> Prawo do sprzeciwu wobec przetwarzania</div>
+                    </div>
+                    <p class="mt-3 text-secondary">
+                        W celu realizacji swoich praw skontaktuj się z nami pod adresem <a href="mailto:kontakt@kangain.pl" class="text-gym text-decoration-none">kontakt@kangain.pl</a>. Masz również prawo wniesienia skargi do <strong>Prezesa Urzędu Ochrony Danych Osobowych (PUODO)</strong>.
+                    </p>
+                </section>
+
+                <section class="mb-4">
+                    <h2 class="h5 text-white text-uppercase fw-bold mb-3 border-start border-gym border-4 ps-2">
+                        6. Pliki Cookies (Ciasteczka)
+                    </h2>
+                    <p class="text-secondary">
+                        Nasza strona internetowa korzysta z plików cookies. Używamy ich w celu zapewnienia prawidłowego działania strony, analizy ruchu (np. Google Analytics) oraz integracji z mediami społecznościowymi.
+                    </p>
+                    <p class="text-secondary">Możesz w każdej chwili zmienić ustawienia dotyczące plików cookies w swojej przeglądarce internetowej.</p>
+                </section>
+
+                <section class="mb-0">
+                    <h2 class="h5 text-white text-uppercase fw-bold mb-3 border-start border-gym border-4 ps-2">
+                        7. Zmiany w Polityce Prywatności
+                    </h2>
+                    <p class="text-secondary mb-0">
+                        Zastrzegamy sobie prawo do wprowadzania zmian w niniejszej Polityce Prywatności. Każda nowa wersja będzie publikowana w tym miejscu wraz z datą ostatniej aktualizacji.
+                    </p>
+                </section>
+
             </div>
         </div>
-    </form>
+    </div>
 </div>
-
-<script id="zapisaneParametryData" type="application/json">
-    @Html.Raw(string.IsNullOrEmpty((string)ViewBag.ZapisaneParametryJson) ? "{}" : ViewBag.ZapisaneParametryJson)
-</script>
-
-@section Scripts {
-    <script src="~/js/stworzPlan.js" asp-append-version="true"></script>
-}
