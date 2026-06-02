@@ -1,3 +1,4 @@
 <Solution>
+  <Project Path="../KanGainNET.Tests/KanGainNET.Tests.csproj" Id="0511a739-d293-4fd3-b0fc-7a7cf41ae1bd" />
   <Project Path="KanGainNET.csproj" />
 </Solution>

@@ -6,7 +6,7 @@ namespace KanGainNET.Models.ViewModels
 {
     public class GrafikViewModel
     {
-        // --- WIDOK GŁÓWNY (INDEX) ---
+        // Widok główny
         public DateTime Data { get; set; }
         public List<Sala>? Sale { get; set; }
         public List<Grafik>? Zajecia { get; set; }
@@ -14,7 +14,7 @@ namespace KanGainNET.Models.ViewModels
         public List<Lokalizacja>? Lokalizacje { get; set; }
         public int? WybranaLokalizacjaId { get; set; }
 
-        // --- FORMULARZ (DODAWANIE / EDYCJA / PODGLĄD) ---
+        // Formularz dodawania/edycji
         public int? Id { get; set; }
         public DateTime DataStart { get; set; }
         public DateTime DataKoniec { get; set; }

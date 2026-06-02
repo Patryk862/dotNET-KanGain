@@ -1,5 +1,5 @@
 document.addEventListener("DOMContentLoaded", () => {
-    // --- LOGIKA KARUZELI CENNIKA ---
+    // Karuzela
     const cards = document.querySelectorAll('.pricing-card');
     const totalCards = cards.length;
     let currentIndex = Math.floor(totalCards / 2) - 1; 
@@ -48,7 +48,7 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     });
 
-    // --- EFEKT PISANIA NA MASZYNIE ---
+    // Efekt pisania
     const words = ["granice", "swoje słabości", "oczekiwania", "własne limity"];
     let wordIndex = 0;
     let timer;

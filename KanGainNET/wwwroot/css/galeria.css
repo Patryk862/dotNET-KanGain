@@ -1,0 +1,69 @@
+﻿.galeria-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 24px;
+    padding: 20px 0;
+}
+
+.galeria-item {
+    position: relative;
+    overflow: hidden;
+    border: 2px solid #222;
+    border-radius: 12px;
+    background-color: #000;
+    aspect-ratio: 4/3;
+    transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.galeria-item:hover {
+    transform: translateY(-5px);
+    border-color: var(--gym-primary, #ff5500);
+    box-shadow: 0 10px 25px rgba(255, 85, 0, 0.25);
+}
+
+.galeria-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s ease;
+}
+
+.galeria-item:hover .galeria-img {
+    transform: scale(1.08);
+}
+
+
+
+.pozycja-usun {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    z-index: 10;
+    opacity: 0;
+    transform: scale(0.8);
+    transition: opacity 0.25s ease, transform 0.25s ease;
+}
+
+.galeria-item:hover .pozycja-usun {
+    opacity: 1;
+    transform: scale(1);
+}
+
+.pozycja-usun .btn-danger {
+    width: 38px;
+    height: 38px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #dc3545;
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    color: #fff;
+    transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+.pozycja-usun .btn-danger:hover {
+    background-color: #b21f2d;
+    transform: scale(1.1);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+}
