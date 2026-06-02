@@ -73,8 +73,8 @@ namespace KanGainNET.Controllers
             var uzytkownik = await _context.Uzytkownicy
                 .Include(u => u.Profil)
                 .FirstOrDefaultAsync(u => u.Email == currentName || 
-                                         u.Id.ToString() == currentName || 
-                                         u.Profil.Imie == currentName);
+                u.Id.ToString() == currentName || 
+                u.Profil.Imie == currentName);
 
             if (uzytkownik != null)
             {
@@ -122,8 +122,8 @@ namespace KanGainNET.Controllers
             var uzytkownik = await _context.Uzytkownicy
                 .Include(u => u.Profil)
                 .FirstOrDefaultAsync(u => u.Email == currentName || 
-                                         u.Id.ToString() == currentName || 
-                                         u.Profil.Imie == currentName);
+                u.Id.ToString() == currentName || 
+                u.Profil.Imie == currentName);
 
             if (uzytkownik == null) 
             {

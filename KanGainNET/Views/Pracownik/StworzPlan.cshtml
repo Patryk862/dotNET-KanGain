@@ -57,10 +57,10 @@
             const selectedList = document.getElementById('selected-list');
             const hiddenInput = document.getElementById('UkrytyOpisParametrow');
 
-            // 1. Ładowanie zapisanych parametrów z bazy bezpośrednio jako obiekt
+            // Ładowanie zapisanych parametrów z bazy bezpośrednio jako obiekt
             const parametry = @Html.Raw(string.IsNullOrEmpty((string)ViewBag.ZapisaneParametryJson) ? "{}" : ViewBag.ZapisaneParametryJson);
 
-            // 2. Prosta funkcja pakująca stan do JSON z wymuszeniem minimum 
+            // Stan do JSON
             window.zapiszDoJson = function () {
                 const słownik = {};
                 selectedList.querySelectorAll('.pozycja-planu-item').forEach(item => {
@@ -83,7 +83,7 @@
                 zapiszDoJson();
             };
 
-            // 3. Funkcja usuwająca 
+            // Usuwanie
             window.usunCwiczenie = function (btnElement, id) {
                 btnElement.closest('.pozycja-planu-item').remove();
                 zapiszDoJson();
@@ -96,7 +96,7 @@
                 }
             };
 
-            // 4. Funkcja dodawania ćwiczenia
+			// Dodawanie
             window.dodajCwiczenieDoZestawu = function (id, name, serie = 3, przerwa = 60) {
                 if (selectedList.querySelector(`[data-cwiczenie-id="${id}"]`)) return;
 
@@ -142,14 +142,14 @@
                 }
             };
 
-            // 5. Obsługa kliknięć "Dodaj"
+            // Dodaj
             document.querySelectorAll('.add-btn').forEach(btn => {
                 btn.addEventListener('click', function () {
                     dodajCwiczenieDoZestawu(this.dataset.id, this.dataset.name);
                 });
             });
 
-            // 6. Ładowanie starych danych
+            // Ładowanie starych danych
             const rawIds = document.getElementById('kreator-glowny').getAttribute('data-zapisane-ids');
             if (rawIds && rawIds.trim() !== "") {
                 rawIds.split(',').forEach(id => {

@@ -4,7 +4,6 @@ let map;
 document.addEventListener("DOMContentLoaded", function () {
     const mapElement = document.getElementById('map');
 
-    // Zabezpieczenie: uruchamiamy skrypt tylko wtedy, gdy na stronie faktycznie jest mapa
     if (mapElement) {
         // Inicjalizacja mapy
         map = L.map('map', { zoomControl: false }).setView([52.2, 19.0], 6);
@@ -38,8 +37,6 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 });
 
-// Zdefiniowanie funkcji globalnie (w obiekcie window), 
-// aby atrybut 'onclick' wewnątrz Twojego HTML-a mógł ją wywołać
 window.flyToLocation = function (lat, lng) {
     if (map) {
         map.flyTo([lat, lng], 15, { duration: 1.5 });
