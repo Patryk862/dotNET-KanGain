@@ -38,6 +38,8 @@ builder.Services.AddSwaggerGen(c =>
 
 // Serwis RFID - działa tylko w wersji lokalnej, w produkcji jest wyłączony, ponieważ nie ma fizycznego czytnika
 //builder.Services.AddSingleton<RFIDReaderService>();
+
+// Stripe
 Stripe.StripeConfiguration.ApiKey = builder.Configuration.GetSection("Stripe:SecretKey").Get<string>();
 
 var app = builder.Build();
@@ -75,7 +77,7 @@ app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
 
-//FAKER DANYCH
+// Faker
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
@@ -83,16 +85,16 @@ using (var scope = app.Services.CreateScope())
     {
         var context = services.GetRequiredService<SilowniaContext>();
 
-        // 1. Sprawdź, czy na Azure brakuje jakichś tabel/kolumn z nowych migracji i je utwórz
+        // Zastosuj migracje w Azure
         await context.Database.MigrateAsync();
 
-        // 2. Uruchom skrypt masowego generowania danych Bogus
+        // Generowanie danych
         await KanGainNET.Data.DbSeeder.SeedAsync(context);
     }
     catch (Exception ex)
     {
         throw;
-        // Jeśli chmura rzuci błędem, zobaczysz go w konsoli debugowania
+        // Obsługa błędów podczas seeding danych
     }
 }
 
