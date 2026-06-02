@@ -21,13 +21,11 @@ namespace KanGainNET.Controllers
     public class KarnetyController : Controller
     {
         private readonly SilowniaContext _context;
-        private readonly IWebHostEnvironment _env;
 
-        // Wstrzykujemy IWebHostEnvironment, aby mieć dostęp do folderu wwwroot
-        public KarnetyController(SilowniaContext context, IWebHostEnvironment env)
+        // KONSTRUKTOR ZOSTAJE PO STAREMU - testy się nie wysypią
+        public KarnetyController(SilowniaContext context)
         {
             _context = context;
-            _env = env;
         }
 
         [HttpPost]
@@ -146,7 +144,8 @@ namespace KanGainNET.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> PobierzPotwierdzeniePdf(int id)
+        // TUTA JEST ZMIANA: Dodany atrybut [FromServices] pozwala pobrać środowisko z pominięciem konstruktora
+        public async Task<IActionResult> PobierzPotwierdzeniePdf(int id, [FromServices] IWebHostEnvironment env)
         {
             var subskrypcja = await _context.Subskrypcje
                 .Include(s => s.TypKarnetu)
@@ -159,8 +158,8 @@ namespace KanGainNET.Controllers
             var platnosc = await _context.Platnosci.FirstOrDefaultAsync(p => p.SubskrypcjaId == id);
             string metodaPlatnosci = platnosc != null ? platnosc.Metoda : "Płatność online";
 
-            // Budowanie fizycznej ścieżki do pliku z logo
-            string logoPath = Path.Combine(_env.WebRootPath, "images", "logo.png");
+            // Pobieranie ścieżki do logo z wstrzykniętego w metodę interfejsu
+            string logoPath = Path.Combine(env.WebRootPath, "images", "logo.png");
 
             var document = Document.Create(container =>
             {
@@ -173,10 +172,9 @@ namespace KanGainNET.Controllers
 
                     page.Header().Row(row =>
                     {
-                        // Zabezpieczenie: ładujemy obrazek tylko wtedy, gdy faktycznie istnieje na dysku
                         if (System.IO.File.Exists(logoPath))
                         {
-                            row.ConstantItem(60).Image(logoPath); // ConstantItem ustawia szerokość logo w dokumencie
+                            row.ConstantItem(60).Image(logoPath);
                         }
 
                         row.RelativeItem().PaddingLeft(10).Column(col =>
