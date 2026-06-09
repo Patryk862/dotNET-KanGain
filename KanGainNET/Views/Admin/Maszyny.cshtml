@@ -4,7 +4,6 @@
     ViewData["Title"] = "Wyposażenie";
 }
 
-
 <div class="container mt-5">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h2 class="text-white text-uppercase fw-bold m-0">Stan Maszyn i Sprzętu</h2>
@@ -12,9 +11,9 @@
         <form method="get" asp-controller="AdminSprzet" asp-action="Index" class="d-flex align-items-center gap-2" style="max-width: 300px;">
             <label class="text-secondary small text-uppercase fw-bold m-0 text-nowrap">Lokalizacja:</label>
             <select name="lokalizacjaId" class="form-select bg-dark text-white border-secondary" onchange="this.form.submit()">
-                @foreach (var lok in ViewBag.Lokalizacje ?? new List<Lokalizacja>())
+                @foreach (var lok in ViewBag.Lokalizacje ?? new List<KanGainNET.Models.Lokalizacja>())
                 {
-                    <!option value="@lok.Id" @(lok.Id == ViewBag.WybraneId ? "selected" : "")>@lok.Nazwa</!option>
+                    <option value="@lok.Id" selected="@(lok.Id == ViewBag.WybraneId ? "selected" : null)">@lok.Nazwa</option>
                 }
             </select>
         </form>
@@ -59,6 +58,44 @@
             </table>
         </div>
     </div>
+
+    @if (ViewBag.TotalPages > 1)
+    {
+        int current = (int)ViewBag.CurrentPage;
+        int total = (int)ViewBag.TotalPages;
+        int start = Math.Max(1, current - 2);
+        int end = Math.Min(total, current + 2);
+
+        <nav aria-label="Page navigation" class="mt-4">
+            <ul class="pagination justify-content-center">
+                <li class="page-item @(current == 1 ? "disabled" : "")">
+                    <a class="page-link bg-dark text-white border-secondary" asp-action="Index" 
+                       asp-route-page="@(current - 1)" asp-route-lokalizacjaId="@ViewBag.WybraneId">&laquo;</a>
+                </li>
+
+                @if (start > 1) {
+                    <li class="page-item"><a class="page-link bg-dark text-white border-secondary" asp-action="Index" asp-route-page="1" asp-route-lokalizacjaId="@ViewBag.WybraneId">1</a></li>
+                    @if (start > 2) { <li class="page-item disabled"><span class="page-link bg-dark text-white border-secondary">...</span></li> }
+                }
+
+                @for (int i = start; i <= end; i++)
+                {
+                    <li class="page-item @(i == current ? "active" : "")">
+                        <a class="page-link bg-dark text-white border-secondary" asp-action="Index" asp-route-page="@i" asp-route-lokalizacjaId="@ViewBag.WybraneId">@i</a>
+                    </li>
+                }
+
+                @if (end < total) {
+                    @if (end < total - 1) { <li class="page-item disabled"><span class="page-link bg-dark text-white border-secondary">...</span></li> }
+                    <li class="page-item"><a class="page-link bg-dark text-white border-secondary" asp-action="Index" asp-route-page="@total" asp-route-lokalizacjaId="@ViewBag.WybraneId">@total</a></li>
+                }
+
+                <li class="page-item @(current == total ? "disabled" : "")">
+                    <a class="page-link bg-dark text-white border-secondary" asp-action="Index" asp-route-page="@(current + 1)" asp-route-lokalizacjaId="@ViewBag.WybraneId">&raquo;</a>
+                </li>
+            </ul>
+        </nav>
+    }
 
     <div class="mt-4">
         <a asp-controller="Admin" asp-action="Index" class="btn btn-outline-light rounded-pill px-4">Wróć</a>

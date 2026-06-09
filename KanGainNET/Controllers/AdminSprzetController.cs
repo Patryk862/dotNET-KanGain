@@ -12,14 +12,24 @@ namespace KanGainNET.Controllers
         private readonly SilowniaContext _context;
         public AdminSprzetController(SilowniaContext context) => _context = context;
 
-        public async Task<IActionResult> Index(int? lokalizacjaId)
+        public async Task<IActionResult> Index(int? lokalizacjaId, int page = 1)
         {
+            int pageSize = 14; 
             var lokalizacje = await _context.Lokalizacje.ToListAsync();
             var wybraneId = lokalizacjaId ?? lokalizacje.FirstOrDefault()?.Id;
 
-            var sprzet = await _context.Sprzet
+            var query = _context.Sprzet
                 .Include(s => s.Lokalizacja)
-                .Where(s => s.LokalizacjaId == wybraneId)
+                .Where(s => s.LokalizacjaId == wybraneId);
+
+            int totalItems = await query.CountAsync();
+            ViewBag.TotalPages = (int)Math.Ceiling(totalItems / (double)pageSize);
+            ViewBag.CurrentPage = page;
+
+            var sprzet = await query
+                .OrderBy(s => s.Id) 
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
                 .ToListAsync();
 
             ViewBag.Lokalizacje = lokalizacje;

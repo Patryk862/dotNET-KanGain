@@ -12,23 +12,21 @@ namespace KanGainNET.Controllers
         private readonly SilowniaContext _context;
         public AdminPracownicyController(SilowniaContext context) => _context = context;
 
-        public async Task<IActionResult> Index(string searchString)
+        public async Task<IActionResult> Index(string searchString, int page = 1)
         {
+            int pageSize = 14;
+
             var specjalizacje = await _context.ZajeciaGrupowe
                 .Select(z => z.Nazwa)
                 .Distinct()
                 .ToListAsync();
 
-            if (specjalizacje == null || !specjalizacje.Any())
-            {
-                specjalizacje = new List<string> { "Joga", "Box", "Pilates", "Zumba", "CrossFit", "Silownia" };
-            }
-            ViewBag.Specjalizacje = specjalizacje;
+            ViewBag.Specjalizacje = specjalizacje ?? new List<string> { "Joga", "Box", "Pilates", "Zumba", "CrossFit", "Silownia" };
 
             var query = _context.Uzytkownicy
+                .AsNoTracking()
                 .Include(u => u.Rola)
                 .Include(u => u.Profil)
-                .Include(u => u.Pracownik)
                 .AsQueryable();
 
             if (!string.IsNullOrEmpty(searchString))
@@ -40,107 +38,90 @@ namespace KanGainNET.Controllers
                 );
             }
 
-            var uzytkownicy = await query.ToListAsync();
+            int totalItems = await query.CountAsync();
+            var uzytkownicy = await query
+                .OrderBy(u => u.Id)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            ViewBag.TotalPages = (int)Math.Ceiling(totalItems / (double)pageSize);
+            ViewBag.CurrentPage = page;
             ViewBag.SearchString = searchString;
 
             return View("~/Views/Admin/Pracownicy.cshtml", uzytkownicy);
         }
 
         [HttpPost]
-        public async Task<IActionResult> ZmienRole(int id, int nowaRolaId)
+        public async Task<IActionResult> ZmienRole(int id, int nowaRolaId, string searchString, int page)
         {
             var uzytkownik = await _context.Uzytkownicy.FindAsync(id);
             if (uzytkownik != null)
             {
                 uzytkownik.RolaId = nowaRolaId;
-                var pracownikWpis = await _context.Pracownicy.FirstOrDefaultAsync(p => p.UzytkownikId == id);
 
-                if (nowaRolaId == 3) 
+                if (nowaRolaId == 3)
                 {
-                    if (pracownikWpis == null)
+                    if (string.IsNullOrEmpty(uzytkownik.Specjalizacja))
                     {
-                        var domyslnaSpec = await _context.ZajeciaGrupowe.Select(z => z.Nazwa).FirstOrDefaultAsync() ?? "Joga";
-
-                        _context.Pracownicy.Add(new Pracownik
-                        {
-                            UzytkownikId = id,
-                            Specjalizacja = domyslnaSpec
-                        });
+                        uzytkownik.Specjalizacja = await _context.ZajeciaGrupowe.Select(z => z.Nazwa).FirstOrDefaultAsync() ?? "Joga";
+                        uzytkownik.DataZatrudnienia = DateTime.Now;
                     }
                 }
-                else if (nowaRolaId == 2) 
+                else if (nowaRolaId == 2)
                 {
-                    if (pracownikWpis != null)
-                    {
-                        var zajeciaWGrafiku = await _context.Grafiki.Where(g => g.PracownikId == pracownikWpis.Id).ToListAsync();
-                        if (zajeciaWGrafiku.Any())
-                        {
-                            _context.Grafiki.RemoveRange(zajeciaWGrafiku);
-                        }
+                    var zajeciaWGrafiku = await _context.Grafiki.Where(g => g.PracownikId == id).ToListAsync();
+                    if (zajeciaWGrafiku.Any()) _context.Grafiki.RemoveRange(zajeciaWGrafiku);
 
-                        var planyTreningowe = await _context.PlanyTreningowe.Where(p => p.PracownikId == pracownikWpis.Id).ToListAsync();
-                        if (planyTreningowe.Any())
-                        {
-                            _context.PlanyTreningowe.RemoveRange(planyTreningowe);
-                        }
+                    var planyTreningowe = await _context.PlanyTreningowe.Where(p => p.TrenerId == id).ToListAsync();
+                    if (planyTreningowe.Any()) _context.PlanyTreningowe.RemoveRange(planyTreningowe);
 
-                        _context.Pracownicy.Remove(pracownikWpis);
-                    }
+                    uzytkownik.Specjalizacja = null;
+                    uzytkownik.DataZatrudnienia = null;
                 }
 
                 await _context.SaveChangesAsync();
             }
-            return RedirectToAction(nameof(Index), new { searchString = ViewBag.SearchString });
+            return RedirectToAction(nameof(Index), new { searchString, page });
         }
 
         [HttpPost]
-        public async Task<IActionResult> ZmienSpecjalizacje(int id, string specjalizacja)
+        public async Task<IActionResult> ZmienSpecjalizacje(int id, string specjalizacja, string searchString, int page)
         {
-            var pracownikWpis = await _context.Pracownicy.FirstOrDefaultAsync(p => p.UzytkownikId == id);
-            if (pracownikWpis != null)
+            var uzytkownik = await _context.Uzytkownicy.FindAsync(id);
+            if (uzytkownik != null && uzytkownik.RolaId == 3)
             {
-                pracownikWpis.Specjalizacja = specjalizacja;
+                uzytkownik.Specjalizacja = specjalizacja;
                 await _context.SaveChangesAsync();
             }
-            return RedirectToAction(nameof(Index), new { searchString = ViewBag.SearchString });
+
+            return RedirectToAction(nameof(Index), new { searchString, page });
         }
 
         [HttpPost]
-        public async Task<IActionResult> Usun(int id)
+        public async Task<IActionResult> Usun(int id, string searchString, int page)
         {
             var uzytkownik = await _context.Uzytkownicy
-                .Include(u => u.Pracownik)
                 .Include(u => u.Profil)
                 .FirstOrDefaultAsync(u => u.Id == id);
 
             if (uzytkownik != null)
             {
-                if (uzytkownik.Pracownik != null) 
+                if (uzytkownik.RolaId == 3)
                 {
-                    var zajeciaWGrafiku = await _context.Grafiki.Where(g => g.PracownikId == uzytkownik.Pracownik.Id).ToListAsync();
-                    if (zajeciaWGrafiku.Any())
-                    {
-                        _context.Grafiki.RemoveRange(zajeciaWGrafiku);
-                    }
+                    var zajeciaWGrafiku = await _context.Grafiki.Where(g => g.PracownikId == id).ToListAsync();
+                    if (zajeciaWGrafiku.Any()) _context.Grafiki.RemoveRange(zajeciaWGrafiku);
 
-                    var planyTreningowe = await _context.PlanyTreningowe.Where(p => p.PracownikId == uzytkownik.Pracownik.Id).ToListAsync();
-                    if (planyTreningowe.Any())
-                    {
-                        _context.PlanyTreningowe.RemoveRange(planyTreningowe);
-                    }
+                    var planyTreningowe = await _context.PlanyTreningowe.Where(p => p.TrenerId == id).ToListAsync();
+                    if (planyTreningowe.Any()) _context.PlanyTreningowe.RemoveRange(planyTreningowe);
+                }
 
-                    _context.Pracownicy.Remove(uzytkownik.Pracownik);
-                }
-                
-                if (uzytkownik.Profil != null) 
-                {
-                    _context.ProfileUzytkownikow.Remove(uzytkownik.Profil);
-                }
+                if (uzytkownik.Profil != null) _context.ProfileUzytkownikow.Remove(uzytkownik.Profil);
 
                 _context.Uzytkownicy.Remove(uzytkownik);
                 await _context.SaveChangesAsync();
             }
-            return RedirectToAction(nameof(Index));
+            return RedirectToAction(nameof(Index), new { searchString, page });
         }
     }
 }

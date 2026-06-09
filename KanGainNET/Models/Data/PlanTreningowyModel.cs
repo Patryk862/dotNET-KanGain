@@ -1,3 +1,6 @@
+using System;
+using System.Collections.Generic;
+
 namespace KanGainNET.Models
 {
     public class PlanTreningowy
@@ -10,8 +13,8 @@ namespace KanGainNET.Models
         public int UzytkownikId { get; set; }
         public virtual Uzytkownik Uzytkownik { get; set; }
 
-        public int PracownikId { get; set; }
-        public virtual Pracownik Trener { get; set; }
+        public int TrenerId { get; set; }
+        public virtual Uzytkownik Trener { get; set; }
 
         public virtual ICollection<Cwiczenie> Cwiczenia { get; set; } = new List<Cwiczenie>();
     }

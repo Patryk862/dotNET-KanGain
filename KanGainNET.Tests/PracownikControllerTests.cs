@@ -23,8 +23,7 @@ namespace KanGainNET.Tests
             return new SilowniaContext(options);
         }
 
-        [Fact] // Sprawdzenie czy metoda StworzPlan poprawnie filtruje użytkowników, pokazując
-               // tylko klubowiczów (użytkownikow) i ukrywając adminów oraz pracowników
+        [Fact]
         public async Task StworzPlan_FiltrujeKlubowiczow_UkrywaAdminowIPracownikow()
         {
             var dbContext = PobierzBazeWypelnionaDanymi();
@@ -35,7 +34,8 @@ namespace KanGainNET.Tests
             dbContext.Role.AddRange(rolaAdmin, rolaPracownik, rolaKlient);
 
             dbContext.Uzytkownicy.Add(new Uzytkownik { Id = 1, Email = "admin@klub.pl", Haslo = "SilneHaslo", RolaId = 1 });
-            dbContext.Uzytkownicy.Add(new Uzytkownik { Id = 2, Email = "trener@klub.pl", Haslo = "SilneHaslo", RolaId = 3, Pracownik = new Pracownik { Specjalizacja = "Joga" } });
+            // Specjalizację definiujemy bezpośrednio
+            dbContext.Uzytkownicy.Add(new Uzytkownik { Id = 2, Email = "trener@klub.pl", Haslo = "SilneHaslo", RolaId = 3, Specjalizacja = "Joga" });
             dbContext.Uzytkownicy.Add(new Uzytkownik { Id = 3, Email = "zwykly.klient@klub.pl", Haslo = "SilneHaslo", RolaId = 2, Profil = new ProfilUzytkownika { Imie = "Jan", Nazwisko = "Kowalski", Telefon = "123123123" } });
 
             await dbContext.SaveChangesAsync();

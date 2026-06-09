@@ -96,31 +96,6 @@ namespace KanGainNET.Migrations
                     b.ToTable("Grafiki");
                 });
 
-            modelBuilder.Entity("KanGainNET.Models.KartaRFID", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<bool>("Aktywna")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("UID")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("UzytkownikId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("UzytkownikId");
-
-                    b.ToTable("KartyRFID");
-                });
-
             modelBuilder.Entity("KanGainNET.Models.Lokalizacja", b =>
                 {
                     b.Property<int>("Id")
@@ -154,36 +129,6 @@ namespace KanGainNET.Migrations
                     b.ToTable("Lokalizacje");
                 });
 
-            modelBuilder.Entity("KanGainNET.Models.Obecnosc", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<DateTime>("Data")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("KartaRFIDId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Typ")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int?>("UzytkownikId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("KartaRFIDId");
-
-                    b.HasIndex("UzytkownikId");
-
-                    b.ToTable("Obecnosci");
-                });
-
             modelBuilder.Entity("KanGainNET.Models.PlanTreningowy", b =>
                 {
                     b.Property<int>("Id")
@@ -202,7 +147,7 @@ namespace KanGainNET.Migrations
                     b.Property<string>("Opis")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("PracownikId")
+                    b.Property<int>("TrenerId")
                         .HasColumnType("int");
 
                     b.Property<int>("UzytkownikId")
@@ -210,7 +155,7 @@ namespace KanGainNET.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("PracownikId");
+                    b.HasIndex("TrenerId");
 
                     b.HasIndex("UzytkownikId");
 
@@ -246,59 +191,6 @@ namespace KanGainNET.Migrations
                     b.ToTable("Platnosci");
                 });
 
-            modelBuilder.Entity("KanGainNET.Models.PomiarCiala", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<DateTime>("DataPomiaru")
-                        .HasColumnType("datetime2");
-
-                    b.Property<double>("TkankaTluszczowa")
-                        .HasColumnType("float");
-
-                    b.Property<int>("UzytkownikId")
-                        .HasColumnType("int");
-
-                    b.Property<double>("Waga")
-                        .HasColumnType("float");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("UzytkownikId");
-
-                    b.ToTable("PomiaryCiala");
-                });
-
-            modelBuilder.Entity("KanGainNET.Models.Pracownik", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<DateTime>("DataZatrudnienia")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Specjalizacja")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("UzytkownikId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("UzytkownikId")
-                        .IsUnique();
-
-                    b.ToTable("Pracownicy");
-                });
-
             modelBuilder.Entity("KanGainNET.Models.ProfilUzytkownika", b =>
                 {
                     b.Property<int>("Id")
@@ -328,26 +220,6 @@ namespace KanGainNET.Migrations
                         .IsUnique();
 
                     b.ToTable("ProfileUzytkownikow");
-                });
-
-            modelBuilder.Entity("KanGainNET.Models.Rabat", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Kod")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("ProcentZnizki")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Rabaty");
                 });
 
             modelBuilder.Entity("KanGainNET.Models.Rezerwacja", b =>
@@ -407,7 +279,8 @@ namespace KanGainNET.Migrations
 
                     b.Property<string>("Nazwa")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<int>("Pojemnosc")
                         .HasColumnType("int");
@@ -491,7 +364,8 @@ namespace KanGainNET.Migrations
 
                     b.Property<string>("Nazwa")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.HasKey("Id");
 
@@ -509,6 +383,9 @@ namespace KanGainNET.Migrations
                     b.Property<DateTime>("DataRejestracji")
                         .HasColumnType("datetime2");
 
+                    b.Property<DateTime?>("DataZatrudnienia")
+                        .HasColumnType("datetime2");
+
                     b.Property<string>("Email")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -519,6 +396,9 @@ namespace KanGainNET.Migrations
 
                     b.Property<int>("RolaId")
                         .HasColumnType("int");
+
+                    b.Property<string>("Specjalizacja")
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
@@ -565,7 +445,7 @@ namespace KanGainNET.Migrations
 
             modelBuilder.Entity("KanGainNET.Models.Grafik", b =>
                 {
-                    b.HasOne("KanGainNET.Models.Pracownik", "Pracownik")
+                    b.HasOne("KanGainNET.Models.Uzytkownik", "Pracownik")
                         .WithMany("Grafiki")
                         .HasForeignKey("PracownikId")
                         .OnDelete(DeleteBehavior.Restrict);
@@ -588,43 +468,16 @@ namespace KanGainNET.Migrations
                     b.Navigation("ZajeciaGrupowe");
                 });
 
-            modelBuilder.Entity("KanGainNET.Models.KartaRFID", b =>
-                {
-                    b.HasOne("KanGainNET.Models.Uzytkownik", "Uzytkownik")
-                        .WithMany()
-                        .HasForeignKey("UzytkownikId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("Uzytkownik");
-                });
-
-            modelBuilder.Entity("KanGainNET.Models.Obecnosc", b =>
-                {
-                    b.HasOne("KanGainNET.Models.KartaRFID", "KartaRFID")
-                        .WithMany()
-                        .HasForeignKey("KartaRFIDId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("KanGainNET.Models.Uzytkownik", null)
-                        .WithMany("Obecnosci")
-                        .HasForeignKey("UzytkownikId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
-                    b.Navigation("KartaRFID");
-                });
-
             modelBuilder.Entity("KanGainNET.Models.PlanTreningowy", b =>
                 {
-                    b.HasOne("KanGainNET.Models.Pracownik", "Trener")
-                        .WithMany("PlanyTreningowe")
-                        .HasForeignKey("PracownikId")
+                    b.HasOne("KanGainNET.Models.Uzytkownik", "Trener")
+                        .WithMany("PlanyTreningoweJakoTrener")
+                        .HasForeignKey("TrenerId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("KanGainNET.Models.Uzytkownik", "Uzytkownik")
-                        .WithMany()
+                        .WithMany("PlanyTreningoweJakoKlient")
                         .HasForeignKey("UzytkownikId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
@@ -643,28 +496,6 @@ namespace KanGainNET.Migrations
                         .IsRequired();
 
                     b.Navigation("Subskrypcja");
-                });
-
-            modelBuilder.Entity("KanGainNET.Models.PomiarCiala", b =>
-                {
-                    b.HasOne("KanGainNET.Models.Uzytkownik", "Uzytkownik")
-                        .WithMany()
-                        .HasForeignKey("UzytkownikId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("Uzytkownik");
-                });
-
-            modelBuilder.Entity("KanGainNET.Models.Pracownik", b =>
-                {
-                    b.HasOne("KanGainNET.Models.Uzytkownik", "Uzytkownik")
-                        .WithOne("Pracownik")
-                        .HasForeignKey("KanGainNET.Models.Pracownik", "UzytkownikId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("Uzytkownik");
                 });
 
             modelBuilder.Entity("KanGainNET.Models.ProfilUzytkownika", b =>
@@ -761,13 +592,6 @@ namespace KanGainNET.Migrations
                     b.Navigation("Sprzety");
                 });
 
-            modelBuilder.Entity("KanGainNET.Models.Pracownik", b =>
-                {
-                    b.Navigation("Grafiki");
-
-                    b.Navigation("PlanyTreningowe");
-                });
-
             modelBuilder.Entity("KanGainNET.Models.Rola", b =>
                 {
                     b.Navigation("Uzytkownicy");
@@ -790,10 +614,11 @@ namespace KanGainNET.Migrations
 
             modelBuilder.Entity("KanGainNET.Models.Uzytkownik", b =>
                 {
-                    b.Navigation("Obecnosci");
+                    b.Navigation("Grafiki");
 
-                    b.Navigation("Pracownik")
-                        .IsRequired();
+                    b.Navigation("PlanyTreningoweJakoKlient");
+
+                    b.Navigation("PlanyTreningoweJakoTrener");
 
                     b.Navigation("Profil")
                         .IsRequired();

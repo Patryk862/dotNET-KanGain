@@ -36,15 +36,9 @@ builder.Services.AddSwaggerGen(c =>
     });
 });
 
-// Serwis RFID - działa tylko w wersji lokalnej, w produkcji jest wyłączony, ponieważ nie ma fizycznego czytnika
-//builder.Services.AddSingleton<RFIDReaderService>();
-
-// Stripe
 Stripe.StripeConfiguration.ApiKey = builder.Configuration.GetSection("Stripe:SecretKey").Get<string>();
 
 var app = builder.Build();
-
-//app.Services.GetRequiredService<RFIDReaderService>();
 
 // Konfiguracja potoku HTTP
 if (!app.Environment.IsDevelopment())

@@ -48,7 +48,7 @@ namespace KanGainNET.Controllers
             var model = new GrafikViewModel();
             model.ListaGodzinDropdown = GenerujListeGodzin();
             int currentLokId = 1;
-            bool isStaff = User.IsInRole("Admin") || User.IsInRole("Pracownik");
+            bool isStaff = User.IsInRole("Admin") || User.IsInRole("Pracownik") || User.IsInRole("Trener"); // Poprawka
 
             if (id.HasValue)
             {
@@ -84,27 +84,27 @@ namespace KanGainNET.Controllers
                 var zajecie = await _context.ZajeciaGrupowe.FindAsync(wybraneZajecieId.Value);
                 if (zajecie != null)
                 {
-                    model.DostepniPracownicy = await _context.Pracownicy
-                        .Include(p => p.Uzytkownik).ThenInclude(u => u.Profil)
-                        .Where(p => p.Specjalizacja.ToLower() == zajecie.Nazwa.ToLower())
+                    model.DostepniPracownicy = await _context.Uzytkownicy
+                        .Include(u => u.Profil)
+                        .Where(u => u.RolaId == 3 && u.Specjalizacja != null && u.Specjalizacja.ToLower() == zajecie.Nazwa.ToLower())
                         .ToListAsync();
                 }
                 else
                 {
-                    model.DostepniPracownicy = await _context.Pracownicy.Include(p => p.Uzytkownik).ToListAsync();
+                    model.DostepniPracownicy = await _context.Uzytkownicy.Include(u => u.Profil).Where(u => u.RolaId == 3).ToListAsync();
                 }
             }
             else
             {
-                model.DostepniPracownicy = await _context.Pracownicy.Include(p => p.Uzytkownik).ToListAsync();
+                model.DostepniPracownicy = await _context.Uzytkownicy.Include(u => u.Profil).Where(u => u.RolaId == 3).ToListAsync();
             }
 
             var listaTrenerowDropdown = model.DostepniPracownicy.Select(p => new
             {
                 Id = p.Id,
-                Text = p.Uzytkownik?.Profil != null && !string.IsNullOrEmpty(p.Uzytkownik.Profil.Imie)
-                    ? $"{p.Uzytkownik.Profil.Imie} {p.Uzytkownik.Profil.Nazwisko} ({p.Uzytkownik.Email})"
-                    : p.Uzytkownik?.Email ?? "Nieznany"
+                Text = p.Profil != null && !string.IsNullOrEmpty(p.Profil.Imie)
+                    ? $"{p.Profil.Imie} {p.Profil.Nazwisko} ({p.Email})"
+                    : p.Email ?? "Nieznany"
             }).ToList();
 
             ViewBag.PracownikId = new SelectList(listaTrenerowDropdown, "Id", "Text", model.PracownikId);
@@ -156,27 +156,27 @@ namespace KanGainNET.Controllers
                     var zajecie = await _context.ZajeciaGrupowe.FindAsync(model.ZajeciaGrupoweId.Value);
                     if (zajecie != null)
                     {
-                        model.DostepniPracownicy = await _context.Pracownicy
-                            .Include(p => p.Uzytkownik).ThenInclude(u => u.Profil)
-                            .Where(p => p.Specjalizacja.ToLower() == zajecie.Nazwa.ToLower())
+                        model.DostepniPracownicy = await _context.Uzytkownicy
+                            .Include(u => u.Profil)
+                            .Where(u => u.RolaId == 3 && u.Specjalizacja != null && u.Specjalizacja.ToLower() == zajecie.Nazwa.ToLower())
                             .ToListAsync();
                     }
                     else
                     {
-                        model.DostepniPracownicy = await _context.Pracownicy.Include(p => p.Uzytkownik).ToListAsync();
+                        model.DostepniPracownicy = await _context.Uzytkownicy.Include(u => u.Profil).Where(u => u.RolaId == 3).ToListAsync();
                     }
                 }
                 else
                 {
-                    model.DostepniPracownicy = await _context.Pracownicy.Include(p => p.Uzytkownik).ToListAsync();
+                    model.DostepniPracownicy = await _context.Uzytkownicy.Include(u => u.Profil).Where(u => u.RolaId == 3).ToListAsync();
                 }
 
                 var listaTrenerowDropdown = model.DostepniPracownicy.Select(p => new
                 {
                     Id = p.Id,
-                    Text = p.Uzytkownik?.Profil != null && !string.IsNullOrEmpty(p.Uzytkownik.Profil.Imie)
-                        ? $"{p.Uzytkownik.Profil.Imie} {p.Uzytkownik.Profil.Nazwisko} ({p.Uzytkownik.Email})"
-                        : p.Uzytkownik?.Email ?? "Nieznany"
+                    Text = p.Profil != null && !string.IsNullOrEmpty(p.Profil.Imie)
+                        ? $"{p.Profil.Imie} {p.Profil.Nazwisko} ({p.Email})"
+                        : p.Email ?? "Nieznany"
                 }).ToList();
 
                 ViewBag.PracownikId = new SelectList(listaTrenerowDropdown, "Id", "Text", model.PracownikId);
@@ -184,7 +184,7 @@ namespace KanGainNET.Controllers
                 return View("Formularz", model);
             }
 
-            bool isStaff = User.IsInRole("Admin") || User.IsInRole("Pracownik");
+            bool isStaff = User.IsInRole("Admin") || User.IsInRole("Pracownik") || User.IsInRole("Trener");
             if (model.Id.HasValue)
             {
                 if (!isStaff) return Forbid();
@@ -224,15 +224,15 @@ namespace KanGainNET.Controllers
                 return Json(new List<object>());
             }
 
-            var trenerzy = await _context.Pracownicy
-                .Include(p => p.Uzytkownik).ThenInclude(u => u.Profil)
-                .Where(p => p.Specjalizacja.ToLower() == zajecie.Nazwa.ToLower())
-                .Select(p => new
+            var trenerzy = await _context.Uzytkownicy
+                .Include(u => u.Profil)
+                .Where(u => u.RolaId == 3 && u.Specjalizacja != null && u.Specjalizacja.ToLower() == zajecie.Nazwa.ToLower())
+                .Select(u => new
                 {
-                    id = p.Id,
-                    text = p.Uzytkownik.Profil != null && !string.IsNullOrEmpty(p.Uzytkownik.Profil.Imie)
-                        ? $"{p.Uzytkownik.Profil.Imie} {p.Uzytkownik.Profil.Nazwisko} ({p.Uzytkownik.Email})"
-                        : p.Uzytkownik.Email
+                    id = u.Id,
+                    text = u.Profil != null && !string.IsNullOrEmpty(u.Profil.Imie)
+                        ? $"{u.Profil.Imie} {u.Profil.Nazwisko} ({u.Email})"
+                        : u.Email
                 })
                 .ToListAsync();
 
@@ -240,7 +240,7 @@ namespace KanGainNET.Controllers
         }
 
         [HttpPost]
-        [Authorize(Roles = "Admin, Pracownik")]
+        [Authorize(Roles = "Admin, Pracownik, Trener")]
         public async Task<IActionResult> Usun(int id)
         {
             var wpis = await _context.Grafiki.FindAsync(id);

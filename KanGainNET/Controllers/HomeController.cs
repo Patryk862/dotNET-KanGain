@@ -49,13 +49,12 @@ namespace KanGainNET.Controllers
             var uzytkownikIdKlaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (string.IsNullOrEmpty(uzytkownikIdKlaim) || !int.TryParse(uzytkownikIdKlaim, out int loggedInUserId))
             {
-                return RedirectToAction("Login", "Account"); 
+                return RedirectToAction("Login", "Account");
             }
 
             var mojePlany = await _context.PlanyTreningowe
                 .Include(p => p.Trener)
-                    .ThenInclude(t => t.Uzytkownik)
-                    .ThenInclude(u => u.Profil)
+                    .ThenInclude(t => t.Profil)
                 .Include(p => p.Cwiczenia)
                 .Where(p => p.UzytkownikId == loggedInUserId)
                 .OrderByDescending(p => p.DataStworzenia)

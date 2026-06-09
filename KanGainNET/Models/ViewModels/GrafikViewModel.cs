@@ -24,7 +24,9 @@ namespace KanGainNET.Models.ViewModels
 
         public List<Sala>? DostepneSale { get; set; }
         public List<ZajeciaGrupowe>? DostepneZajecia { get; set; }
-        public List<Pracownik>? DostepniPracownicy { get; set; }
+
+        public List<Uzytkownik>? DostepniPracownicy { get; set; }
+
         public List<string>? ListaGodzinDropdown { get; set; }
         public bool CzyTylkoOdczyt { get; set; }
     }

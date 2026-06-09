@@ -4,7 +4,6 @@
     ViewData["Title"] = "Pracownicy";
 }
 
-
 <div class="container mt-5">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h2 class="text-white text-uppercase fw-bold m-0">Zarządzanie Kadrą i Uprawnieniami</h2>
@@ -43,10 +42,13 @@
                                 {
                                     <form asp-controller="AdminPracownicy" asp-action="ZmienSpecjalizacje" method="post" class="d-inline">
                                         <input type="hidden" name="id" value="@item.Id" />
+                                        <input type="hidden" name="searchString" value="@ViewBag.SearchString" />
+                                        <input type="hidden" name="page" value="@ViewBag.CurrentPage" />
+
                                         <select name="specjalizacja" class="form-select form-select-sm bg-dark text-white border-secondary" onchange="this.form.submit()" style="max-width: 160px;">
                                             @foreach (var spec in ViewBag.Specjalizacje ?? new List<string>())
                                             {
-                                                <!option value="@spec" @(item.Pracownik?.Specjalizacja == spec ? "selected" : "")>@spec</!option>
+                                                <option value="@spec" selected="@(item.Specjalizacja == spec ? "selected" : null)">@spec</option>
                                             }
                                         </select>
                                     </form>
@@ -73,6 +75,8 @@
                                         <form asp-controller="AdminPracownicy" asp-action="ZmienRole" method="post" class="d-inline">
                                             <input type="hidden" name="id" value="@item.Id" />
                                             <input type="hidden" name="nowaRolaId" value="2" />
+                                            <input type="hidden" name="searchString" value="@ViewBag.SearchString" />
+                                            <input type="hidden" name="page" value="@ViewBag.CurrentPage" />
                                             <button type="submit" class="btn btn-sm @(item.RolaId == 2 ? "btn-info text-dark fw-bold" : "btn-outline-info")" @(item.RolaId == 2 ? "disabled type=button" : "")>
                                                 Użytkownik
                                             </button>
@@ -81,6 +85,8 @@
                                         <form asp-controller="AdminPracownicy" asp-action="ZmienRole" method="post" class="d-inline">
                                             <input type="hidden" name="id" value="@item.Id" />
                                             <input type="hidden" name="nowaRolaId" value="3" />
+                                            <input type="hidden" name="searchString" value="@ViewBag.SearchString" />
+                                            <input type="hidden" name="page" value="@ViewBag.CurrentPage" />
                                             <button type="submit" class="btn btn-sm @(item.RolaId == 3 ? "btn-warning text-dark fw-bold" : "btn-outline-warning")" @(item.RolaId == 3 ? "disabled type=button" : "")>
                                                 Trener
                                             </button>
@@ -88,6 +94,8 @@
 
                                         <form asp-controller="AdminPracownicy" asp-action="Usun" method="post" class="d-inline ms-2">
                                             <input type="hidden" name="id" value="@item.Id" />
+                                            <input type="hidden" name="searchString" value="@ViewBag.SearchString" />
+                                            <input type="hidden" name="page" value="@ViewBag.CurrentPage" />
                                             <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('Usunąć użytkownika NA ZAWSZE z bazy?')">Usuń</button>
                                         </form>
                                     }
@@ -103,6 +111,52 @@
             </table>
         </div>
     </div>
+
+    @if (ViewBag.TotalPages > 1)
+    {
+        int current = (int)ViewBag.CurrentPage;
+        int total = (int)ViewBag.TotalPages;
+        int start = Math.Max(1, current - 2);
+        int end = Math.Min(total, current + 2);
+
+        <nav aria-label="Page navigation" class="mt-4">
+            <ul class="pagination justify-content-center">
+                <li class="page-item @(current == 1 ? "disabled" : "")">
+                    <a class="page-link bg-dark text-white border-secondary" asp-action="Index" asp-route-page="@(current - 1)" asp-route-searchString="@ViewBag.SearchString">&laquo;</a>
+                </li>
+
+                @if (start > 1)
+                {
+                    <li class="page-item"><a class="page-link bg-dark text-white border-secondary" asp-action="Index" asp-route-page="1" asp-route-searchString="@ViewBag.SearchString">1</a></li>
+                    @if (start > 2)
+                    {
+                        <li class="page-item disabled"><span class="page-link bg-dark text-white border-secondary">...</span></li>
+                    }
+                }
+
+                @for (int i = start; i <= end; i++)
+                {
+                    <li class="page-item @(i == current ? "active" : "")">
+                        <a class="page-link bg-dark text-white border-secondary" asp-action="Index" asp-route-page="@i" asp-route-searchString="@ViewBag.SearchString">@i</a>
+                    </li>
+                }
+
+                @if (end < total)
+                {
+                    @if (end < total - 1)
+                    {
+                        <li class="page-item disabled"><span class="page-link bg-dark text-white border-secondary">...</span></li>
+                    }
+                    <li class="page-item"><a class="page-link bg-dark text-white border-secondary" asp-action="Index" asp-route-page="@total" asp-route-searchString="@ViewBag.SearchString">@total</a></li>
+                }
+
+                <li class="page-item @(current == total ? "disabled" : "")">
+                    <a class="page-link bg-dark text-white border-secondary" asp-action="Index" asp-route-page="@(current + 1)" asp-route-searchString="@ViewBag.SearchString">&raquo;</a>
+                </li>
+            </ul>
+        </nav>
+    }
+
     <div class="mt-4">
         <a asp-controller="Admin" asp-action="Index" class="btn btn-outline-light rounded-pill px-4">Wróć</a>
     </div>

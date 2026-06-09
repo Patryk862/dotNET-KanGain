@@ -25,15 +25,15 @@ namespace KanGainNET.Tests
             return new SilowniaContext(options);
         }
 
-        [Fact] // Sprawdzenie czy metoda MojePlany poprawnie przekierowuje niezalogowanego użytkownika do panelu logowania
+        [Fact]
         public async Task MojePlany_ZwracaRedirect_GdyBrakIdZalogowanegoUzytkownika()
         {
             var dbContext = PobierzBazeWypelnionaDanymi();
-            var mockLogger = new Mock<ILogger<HomeController>>(); 
+            var mockLogger = new Mock<ILogger<HomeController>>();
 
             var controller = new HomeController(mockLogger.Object, dbContext);
 
-             var userClaims = new ClaimsPrincipal(new ClaimsIdentity());
+            var userClaims = new ClaimsPrincipal(new ClaimsIdentity());
 
             controller.ControllerContext = new ControllerContext
             {
@@ -47,21 +47,21 @@ namespace KanGainNET.Tests
             Assert.Equal("Account", redirectResult.ControllerName);
         }
 
-        [Fact] // Sprawdzenie czy metoda MojePlany zwraca tylko plany treningowe należące do zalogowanego użytkownika i czy są one posortowane datami
+        [Fact]
         public async Task MojePlany_ZwracaTylkoPlanyZalogowanegoUzytkownika_PosortowaneDatami()
         {
             var dbContext = PobierzBazeWypelnionaDanymi();
             var mockLogger = new Mock<ILogger<HomeController>>();
 
-            dbContext.Uzytkownicy.Add(new Uzytkownik { Id = 99, Email = "trener@klub.pl", Haslo = "123" });
-            dbContext.Pracownicy.Add(new Pracownik { Id = 1, UzytkownikId = 99, Specjalizacja = "Joga" });
+            // Dodajemy trenera bezpośrednio do Uzytkownicy
+            dbContext.Uzytkownicy.Add(new Uzytkownik { Id = 99, Email = "trener@klub.pl", Haslo = "123", RolaId = 3, Specjalizacja = "Joga" });
 
             dbContext.PlanyTreningowe.Add(new PlanTreningowy
             {
                 Id = 1,
                 Nazwa = "Stary plan Klienta 1",
                 UzytkownikId = 1,
-                PracownikId = 1,
+                TrenerId = 99, // Podmieniono PracownikId na TrenerId
                 DataStworzenia = DateTime.Now.AddDays(-10)
             });
             dbContext.PlanyTreningowe.Add(new PlanTreningowy
@@ -69,7 +69,7 @@ namespace KanGainNET.Tests
                 Id = 2,
                 Nazwa = "Nowy plan Klienta 1",
                 UzytkownikId = 1,
-                PracownikId = 1,
+                TrenerId = 99,
                 DataStworzenia = DateTime.Now
             });
 
@@ -78,7 +78,7 @@ namespace KanGainNET.Tests
                 Id = 3,
                 Nazwa = "Plan Klienta 2",
                 UzytkownikId = 2,
-                PracownikId = 1,
+                TrenerId = 99,
                 DataStworzenia = DateTime.Now
             });
 

@@ -21,6 +21,17 @@ namespace KanGainNET.Data
             string suroweHaslo = "KanGain2026!";
             string zahaszowaneHaslo = HaszujHaslo(suroweHaslo);
 
+            // --- DODANY KOD: Uzupełnianie ról w nowej bazie ---
+            if (!await context.Role.AnyAsync())
+            {
+                context.Role.AddRange(
+                    new Rola { Nazwa = "Admin" },
+                    new Rola { Nazwa = "Klient" },
+                    new Rola { Nazwa = "Trener" }
+                );
+                await context.SaveChangesAsync();
+            }
+
             // --- 1. NAPRAWA ISTNIEJĄCYCH KONT (HASZOWANIE) ---
             var kontaDoNaprawy = await context.Uzytkownicy
                 .Where(u => u.Haslo == "KanGain2026!")
@@ -36,7 +47,7 @@ namespace KanGainNET.Data
             }
 
             // ======================================================================
-            // 2. REGENERACJA I INTEGRACJA: PEŁNA MATRYCA 6 KARNETÓW Z OBRAZ_2.JPG
+            // 2. REGENERACJA I INTEGRACJA: PEŁNA MATRYCA 6 KARNETÓW
             // ======================================================================
             var pelnySlownikKarnetow = new List<TypKarnetu>
             {
@@ -52,7 +63,6 @@ namespace KanGainNET.Data
 
             foreach (var k in pelnySlownikKarnetow)
             {
-                // Jeśli baza nie ma któregoś z tych 6 planów (np. tych co usunąłem), to go grzecznie dopisujemy
                 if (!obecneKarnetyWDatabase.Contains(k.Nazwa))
                 {
                     context.TypyKarnetow.Add(k);
@@ -60,19 +70,35 @@ namespace KanGainNET.Data
             }
             await context.SaveChangesAsync();
 
-            // Pobieramy kompletną listę 6 połączonych planów do generowania fejkowej sprzedaży
             var wszystkieTypyKarnetow = await context.TypyKarnetow.ToListAsync();
+
             // ======================================================================
-
-            // --- 3. POBIERANIE SEKCJI Z BAZY ---
+            // --- 3. POBIERANIE I TWORZENIE ZAJĘĆ GRUPOWYCH ---
+            // ======================================================================
             var wszystkieZajeciaGrupowe = await context.ZajeciaGrupowe.ToListAsync();
-            var dostepneSpecjalizacje = wszystkieZajeciaGrupowe.Select(z => z.Nazwa).ToArray();
 
-            if (!dostepneSpecjalizacje.Any())
+            if (!wszystkieZajeciaGrupowe.Any())
             {
-                dostepneSpecjalizacje = new[] { "Joga", "Box", "Pilates", "Zumba", "CrossFit", "Silownia" };
+                var domyslneZajecia = new List<ZajeciaGrupowe>
+                {
+                    new ZajeciaGrupowe { Nazwa = "Joga", Opis = "Zajęcia rozciągające i relaksacyjne poprawiające elastyczność i równowagę." },
+                    new ZajeciaGrupowe { Nazwa = "Box", Opis = "Podstawy boksu i intensywny trening cardio." },
+                    new ZajeciaGrupowe { Nazwa = "Pilates", Opis = "Wzmacnianie mięśni głębokich i poprawa postawy ciała." },
+                    new ZajeciaGrupowe { Nazwa = "Zumba", Opis = "Zajęcia taneczne typu cardio przy muzyce latynoamerykańskiej." },
+                    new ZajeciaGrupowe { Nazwa = "CrossFit", Opis = "Intensywny trening funkcjonalny, siłowy i kondycyjny." },
+                    new ZajeciaGrupowe { Nazwa = "Silownia", Opis = "Zajęcia wprowadzające na siłowni z użyciem maszyn i wolnych ciężarów." }
+                };
+
+                context.ZajeciaGrupowe.AddRange(domyslneZajecia);
+                await context.SaveChangesAsync();
+
+                // Odśwież listę z bazy po dodaniu
+                wszystkieZajeciaGrupowe = await context.ZajeciaGrupowe.ToListAsync();
             }
 
+            var dostepneSpecjalizacje = wszystkieZajeciaGrupowe.Select(z => z.Nazwa).ToArray();
+
+            // --- ROLE ---
             var rolaUzytkownik = await context.Role.FirstOrDefaultAsync(r => r.Nazwa == "Uzytkownik" || r.Nazwa == "Klient");
             var rolaTrener = await context.Role.FirstOrDefaultAsync(r => r.Nazwa == "Trener" || r.Nazwa == "Pracownik");
 
@@ -195,6 +221,8 @@ namespace KanGainNET.Data
                         Haslo = zahaszowaneHaslo,
                         DataRejestracji = DateTime.Now,
                         RolaId = idRoliTrener,
+                        Specjalizacja = "Joga",
+                        DataZatrudnienia = DateTime.Now,
                         Profil = new ProfilUzytkownika { Imie = "Jan", Nazwisko = "Trener", Telefon = "123456789" }
                     });
                     iluTrenerowDopisac--;
@@ -212,6 +240,8 @@ namespace KanGainNET.Data
                         Haslo = zahaszowaneHaslo,
                         DataRejestracji = faker.Date.Past(1),
                         RolaId = idRoliTrener,
+                        Specjalizacja = faker.PickRandom(dostepneSpecjalizacje),
+                        DataZatrudnienia = faker.Date.Past(2),
                         Profil = new ProfilUzytkownika { Imie = imie, Nazwisko = nazwisko, Telefon = faker.Phone.PhoneNumber("#########") }
                     });
                 }
@@ -221,21 +251,10 @@ namespace KanGainNET.Data
                     context.Uzytkownicy.AddRange(chunk);
                     await context.SaveChangesAsync();
                 }
-
-                var wpisyPracownikow = nowiTrenerzyUzytkownicy.Select(t => new Pracownik
-                {
-                    UzytkownikId = t.Id,
-                    Specjalizacja = t.Email == "trener.test@kangain.com" ? "Joga" : faker.PickRandom(dostepneSpecjalizacje),
-                    DataZatrudnienia = faker.Date.Past(2)
-                }).ToList();
-
-                context.Pracownicy.AddRange(wpisyPracownikow);
-                await context.SaveChangesAsync();
             }
 
-            var janTrenerWpis = await context.Pracownicy
-                .Include(p => p.Uzytkownik)
-                .FirstOrDefaultAsync(p => p.Uzytkownik.Email == "trener.test@kangain.com");
+            var janTrenerWpis = await context.Uzytkownicy
+                .FirstOrDefaultAsync(u => u.Email == "trener.test@kangain.com");
 
             if (janTrenerWpis != null && janTrenerWpis.Specjalizacja != "Joga")
             {
@@ -243,7 +262,7 @@ namespace KanGainNET.Data
                 await context.SaveChangesAsync();
             }
 
-            // --- 9. UZUPEŁNIANIE KLIENTÓW DO LICZBY 2000 (SZTYWNY PODZIAŁ NA TWOJE 6 PLANÓW) ---
+            // --- 9. UZUPEŁNIANIE KLIENTÓW DO LICZBY 2000 ---
             int obecniKlienciKonta = await context.Uzytkownicy.CountAsync(u => u.RolaId == idRoliUzytkownik);
             int iluKlientowDopisac = 2000 - obecniKlienciKonta;
 
@@ -276,7 +295,6 @@ namespace KanGainNET.Data
 
                         if (faker.Random.Bool(0.75f) && wszystkieTypyKarnetow.Any())
                         {
-                            // Losuje dokładnie z puli Twoich kompletnych 6 planów z bazy danych
                             var typ = faker.PickRandom(wszystkieTypyKarnetow);
                             var dataStartu = faker.Date.Recent(30);
 
@@ -307,11 +325,14 @@ namespace KanGainNET.Data
             }
 
             // --- 10. REKLAMOWY HARMONOGRAM GRAFIKU (10 MIASTO/DZIEŃ) ---
+            context.Rezerwacje.RemoveRange(context.Rezerwacje);
+
             context.Grafiki.RemoveRange(context.Grafiki);
+
             await context.SaveChangesAsync();
 
             var harmonogramGrafiku = new List<Grafik>();
-            var wszyscyPracownicyEntities = await context.Pracownicy.ToListAsync();
+            var wszyscyPracownicyEntities = await context.Uzytkownicy.Where(u => u.RolaId == idRoliTrener).ToListAsync();
 
             DateTime dataStartuMiesiaca = new DateTime(2026, 6, 8, 8, 0, 0);
             int[] cityCounters = new int[4];
@@ -322,7 +343,7 @@ namespace KanGainNET.Data
                 var pasujaceZajecie = wszystkieZajeciaGrupowe.FirstOrDefault(z => z.Nazwa.Equals(trener.Specjalizacja, StringComparison.OrdinalIgnoreCase));
                 if (pasujaceZajecie == null) continue;
 
-                string oczekiwanaNazwaSali = trener.Specjalizacja.ToLower() switch
+                string oczekiwanaNazwaSali = trener.Specjalizacja?.ToLower() switch
                 {
                     "joga" => "Sala Joga",
                     "box" => "Sala Boksu",
@@ -413,24 +434,104 @@ namespace KanGainNET.Data
         {
             return new List<Cwiczenie>
             {
-                new Cwiczenie { Nazwa = "Przysiad", Kategoria = "Silowe", Opis = "Podstawowe ćwiczenie na nogi, angażujące mięśnie czworogłowe i pośladkowe." },
-                new Cwiczenie { Nazwa = "Martwy ciąg", Kategoria = "Silowe", Opis = "Ćwiczenie angażujące mięśnie pleców, pośladków, uda oraz korpusu." },
-                new Cwiczenie { Nazwa = "Wyciskanie sztangi na ławce", Kategoria = "Silowe", Opis = "Ćwiczenie na klatkę piersiową, tricepsy i przednie aktony barków."},
-                new Cwiczenie { Nazwa = "Podciąganie na drążku", Kategoria = "Silowe", Opis = "Ćwiczenie na plecy, bicepsy i przedramiona." },
-                new Cwiczenie { Nazwa = "Pompki", Kategoria = "Silowe", Opis = "Ćwiczenie angażujące klatkę piersiową, tricepsy i przedni akton barku." },
-                new Cwiczenie { Nazwa = "Bieg", Kategoria = "Cardio", Opis = "Ćwiczenie poprawiające wydolność sercowo-naczyniową i spalające kalorie." },
-                new Cwiczenie { Nazwa = "Rower stacjonarny", Kategoria = "Cardio", Opis = "Ćwiczenie na poprawę kondycji i spalanie kalorii, angażujące nogi." },
-                new Cwiczenie { Nazwa = "Skakanka", Kategoria = "Cardio", Opis = "Ćwiczenie poprawiające koordynację, kondycję i spalające kalorie." },
-                new Cwiczenie { Nazwa = "Joga", Kategoria = "Rozciagajace", Opis = "Ćwiczenie poprawiające elastyczność, równowagę i redukujące stres." },
-                new Cwiczenie { Nazwa = "Pilates", Kategoria = "Rozciagajace", Opis = "Ćwiczenie wzmacniające mięśnie głębokie, poprawiające postawę." },
-                new Cwiczenie { Nazwa = "Stretching", Kategoria = "Rozciagajace", Opis = "Ćwiczenie poprawiające elastyczność mięśni i zakres ruchu w stawach." },
-                new Cwiczenie { Nazwa = "Tai Chi", Kategoria = "Rozciagajace", Opis = "Ćwiczenie poprawiające równowagę, koordynację i redukujące stres." },
-                new Cwiczenie { Nazwa = "Foam Rolling", Kategoria = "Rozciagajace", Opis = "Ćwiczenie pomagające w rozluźnieniu mięśni i poprawiające regenerację." },
-                new Cwiczenie { Nazwa = "Trening obwodowy", Kategoria = "Mieszane", Opis = "Ćwiczenie łączące elementy siłowe i cardio, angażujące całe ciało." },
-                new Cwiczenie { Nazwa = "Tabata", Kategoria = "Mieszane", Opis = "Intensywny trening interwałowy, który poprawia wydolność tlenową." },
-                new Cwiczenie { Nazwa = "CrossFit", Kategoria = "Mieszane", Opis = "Trening łączący elementy siłowe, cardio i gimnastyczne." },
-                new Cwiczenie { Nazwa = "HIIT (High-Intensity Interval Training)", Kategoria = "Mieszane", Opis = "Trening interwałowy o wysokiej intensywności, który przyspiesza metabolizm." },
-                new Cwiczenie { Nazwa = "Circuit Training", Kategoria = "Mieszane", Opis = "Trening obwodowy, który łączy różne ćwiczenia w szybkim tempie." }
+                // KLATKA PIERSIOWA
+                new Cwiczenie { Nazwa = "Wyciskanie sztangi na ławce poziomej", Kategoria = "Silowe", Opis = "Podstawowe ćwiczenie rozwijające klatkę piersiową, angażuje też triceps i przód barku." },
+                new Cwiczenie { Nazwa = "Wyciskanie hantli na ławce skośnej (dodatniej)", Kategoria = "Silowe", Opis = "Skupia się na górnej części klatki piersiowej." },
+                new Cwiczenie { Nazwa = "Wyciskanie hantli na ławce skośnej (ujemnej)", Kategoria = "Silowe", Opis = "Mocno angażuje dolną część klatki piersiowej." },
+                new Cwiczenie { Nazwa = "Rozpiętki z hantlami na ławce poziomej", Kategoria = "Silowe", Opis = "Ćwiczenie izolowane, świetnie rozciąga klatkę piersiową." },
+                new Cwiczenie { Nazwa = "Rozpiętki na maszynie (Peck-Deck)", Kategoria = "Silowe", Opis = "Bezpieczna izolacja mięśni piersiowych." },
+                new Cwiczenie { Nazwa = "Krzyżowanie linek wyciągu na bramie", Kategoria = "Silowe", Opis = "Ćwiczenie rzeźbiące i dopinające klatkę piersiową." },
+                new Cwiczenie { Nazwa = "Pompki klasyczne", Kategoria = "Silowe", Opis = "Baza treningu z masą własnego ciała. Angażuje klatkę, triceps i core." },
+                new Cwiczenie { Nazwa = "Pompki na poręczach (Dipsy)", Kategoria = "Silowe", Opis = "Mocne ćwiczenie na dolną klatkę oraz triceps." },
+                new Cwiczenie { Nazwa = "Przenoszenie hantla za głowę leżąc (Pullover)", Kategoria = "Silowe", Opis = "Ćwiczenie powiększające objętość klatki piersiowej i angażujące najszerszy grzbietu." },
+
+                // PLECY (GRZBIET)
+                new Cwiczenie { Nazwa = "Podciąganie na drążku nachwytem", Kategoria = "Silowe", Opis = "Królewskie ćwiczenie rozwijające szerokość pleców." },
+                new Cwiczenie { Nazwa = "Podciąganie na drążku podchwytem", Kategoria = "Silowe", Opis = "Bardziej angażuje biceps, świetnie buduje grubość pleców." },
+                new Cwiczenie { Nazwa = "Wiosłowanie sztangą w opadzie tułowia", Kategoria = "Silowe", Opis = "Podstawowe ćwiczenie budujące grubość i siłę pleców." },
+                new Cwiczenie { Nazwa = "Wiosłowanie hantlem jednorącz", Kategoria = "Silowe", Opis = "Pozwala na mocne spięcie najszerszego grzbietu." },
+                new Cwiczenie { Nazwa = "Ściąganie drążka wyciągu górnego do klatki", Kategoria = "Silowe", Opis = "Alternatywa dla podciągania, buduje szerokość pleców." },
+                new Cwiczenie { Nazwa = "Ściąganie drążka wyciągu górnego za kark", Kategoria = "Silowe", Opis = "Wymaga dobrej mobilności barków, mocno angażuje górną część pleców." },
+                new Cwiczenie { Nazwa = "Przyciąganie uchwytu wyciągu dolnego siedząc", Kategoria = "Silowe", Opis = "Buduje grubość pleców, mocno angażuje równoległoboczne i czworoboczny." },
+                new Cwiczenie { Nazwa = "Narciarz na wyciągu górnym", Kategoria = "Silowe", Opis = "Ćwiczenie izolowane na najszerszy grzbietu, wykonywane na prostych rękach." },
+                new Cwiczenie { Nazwa = "Szrugsy ze sztangą", Kategoria = "Silowe", Opis = "Znakomite ćwiczenie na rozwój mięśni czworobocznych (kapturów)." },
+                new Cwiczenie { Nazwa = "Martwy ciąg klasyczny", Kategoria = "Silowe", Opis = "Najlepsze ćwiczenie siłowe angażujące całą tylną taśmę." },
+
+                // NOGI I POŚLADKI
+                new Cwiczenie { Nazwa = "Przysiad ze sztangą na karku (Back Squat)", Kategoria = "Silowe", Opis = "Królowa ćwiczeń na dolne partie ciała." },
+                new Cwiczenie { Nazwa = "Przysiad przedni ze sztangą (Front Squat)", Kategoria = "Silowe", Opis = "Mocniej angażuje mięśnie czworogłowe uda i core." },
+                new Cwiczenie { Nazwa = "Goblet Squat z hantlem/kettlebellem", Kategoria = "Silowe", Opis = "Świetna alternatywa dla początkujących, uczy prawidłowej postawy w przysiadzie." },
+                new Cwiczenie { Nazwa = "Wyciskanie nóg na suwnicy", Kategoria = "Silowe", Opis = "Pozwala na bezpieczne podnoszenie dużych ciężarów na nogi." },
+                new Cwiczenie { Nazwa = "Wykroki z hantlami", Kategoria = "Silowe", Opis = "Ćwiczenie jednostronne, poprawia stabilizację i rzeźbi nogi." },
+                new Cwiczenie { Nazwa = "Przysiad bułgarski", Kategoria = "Silowe", Opis = "Niezwykle skuteczne ćwiczenie na nogi i pośladki, wykonywane na jednej nodze." },
+                new Cwiczenie { Nazwa = "Martwy ciąg na prostych nogach (RDL)", Kategoria = "Silowe", Opis = "Buduje siłę i elastyczność mięśni dwugłowych uda i pośladków." },
+                new Cwiczenie { Nazwa = "Uginanie nóg na maszynie leżąc", Kategoria = "Silowe", Opis = "Ćwiczenie izolowane na mięśnie dwugłowe uda." },
+                new Cwiczenie { Nazwa = "Prostowanie nóg na maszynie siedząc", Kategoria = "Silowe", Opis = "Ćwiczenie izolowane na mięśnie czworogłowe uda." },
+                new Cwiczenie { Nazwa = "Hip Thrust ze sztangą", Kategoria = "Silowe", Opis = "Najlepsze ćwiczenie budujące masę i siłę mięśni pośladkowych." },
+                new Cwiczenie { Nazwa = "Odwodzenie nóg na maszynie", Kategoria = "Silowe", Opis = "Kształtuje zewnętrzne partie pośladków." },
+                new Cwiczenie { Nazwa = "Wspięcia na palce stojąc na maszynie", Kategoria = "Silowe", Opis = "Główne ćwiczenie na rozwój mięśni łydek." },
+
+                // BARKI
+                new Cwiczenie { Nazwa = "Wyciskanie żołnierskie sztangi (OHP)", Kategoria = "Silowe", Opis = "Podstawowe ćwiczenie budujące siłę obręczy barkowej." },
+                new Cwiczenie { Nazwa = "Wyciskanie hantli siedząc", Kategoria = "Silowe", Opis = "Buduje masę przednich i bocznych aktonów barków." },
+                new Cwiczenie { Nazwa = "Wyciskanie Arnolda", Kategoria = "Silowe", Opis = "Wariant wyciskania z rotacją nadgarstków, mocniej uderza w przedni akton." },
+                new Cwiczenie { Nazwa = "Wznosy ramion bokiem z hantlami", Kategoria = "Silowe", Opis = "Najlepsze ćwiczenie izolowane na boczny akton barku, nadaje im 'okrągły' wygląd." },
+                new Cwiczenie { Nazwa = "Wznosy ramion przodem z talerzem", Kategoria = "Silowe", Opis = "Izolacja przedniej części mięśni naramiennych." },
+                new Cwiczenie { Nazwa = "Odwodzenie ramion na maszynie (Reverse Peck-Deck)", Kategoria = "Silowe", Opis = "Ćwiczenie budujące tylny akton barku, poprawia postawę." },
+                new Cwiczenie { Nazwa = "Face Pulls z użyciem liny", Kategoria = "Silowe", Opis = "Fantastyczne ćwiczenie na tył barku i rotatory, dbające o zdrowie stawów barkowych." },
+                new Cwiczenie { Nazwa = "Podciąganie sztangi wzdłuż tułowia", Kategoria = "Silowe", Opis = "Ćwiczenie rozwijające boczne aktony barków i czworoboczny grzbietu." },
+
+                // BICEPS I TRICEPS
+                new Cwiczenie { Nazwa = "Uginanie ramion ze sztangą prostą stojąc", Kategoria = "Silowe", Opis = "Klasyczne ćwiczenie budujące masę bicepsów." },
+                new Cwiczenie { Nazwa = "Uginanie ramion ze sztangą łamaną na modlitewniku", Kategoria = "Silowe", Opis = "Eliminuje bujanie tułowiem, świetna izolacja." },
+                new Cwiczenie { Nazwa = "Uginanie ramion z hantlami z supinacją", Kategoria = "Silowe", Opis = "Skręt nadgarstka powoduje maksymalne spięcie bicepsa." },
+                new Cwiczenie { Nazwa = "Uginanie chwytem młotkowym z hantlami", Kategoria = "Silowe", Opis = "Rozwija mięsień ramienny i przedramiona." },
+                new Cwiczenie { Nazwa = "Wyciskanie sztangi w wąskim chwycie", Kategoria = "Silowe", Opis = "Wielostawowe ćwiczenie potężnie budujące triceps." },
+                new Cwiczenie { Nazwa = "Wyciskanie francuskie sztangi łamanej leżąc", Kategoria = "Silowe", Opis = "Popularne ćwiczenie powiększające triceps (Skullcrushers)." },
+                new Cwiczenie { Nazwa = "Prostowanie ramion na wyciągu górnym z liną", Kategoria = "Silowe", Opis = "Ćwiczenie izolowane z ciągłym napięciem mięśniowym na triceps." },
+                new Cwiczenie { Nazwa = "Pompki w podporze tyłem na ławeczce", Kategoria = "Silowe", Opis = "Łatwe do wykonania ćwiczenie pompujące krew do tricepsa." },
+                new Cwiczenie { Nazwa = "Prostowanie ramienia z hantlem w opadzie tułowia", Kategoria = "Silowe", Opis = "Wymaga dokładności, świetnie 'dobija' triceps na koniec treningu." },
+
+                // BRZUCH I CORE
+                new Cwiczenie { Nazwa = "Deska (Plank)", Kategoria = "Silowe", Opis = "Najlepsze izometryczne ćwiczenie na głębokie mięśnie brzucha i core." },
+                new Cwiczenie { Nazwa = "Klasyczne brzuszki (Crunches)", Kategoria = "Silowe", Opis = "Proste i skuteczne ćwiczenie na mięsień prosty brzucha." },
+                new Cwiczenie { Nazwa = "Unoszenie nóg w zwisie na drążku", Kategoria = "Silowe", Opis = "Bardzo trudne i efektywne ćwiczenie na dolne partie brzucha." },
+                new Cwiczenie { Nazwa = "Russian Twist z obciążeniem", Kategoria = "Silowe", Opis = "Doskonale wyrabia mięśnie skośne brzucha." },
+                new Cwiczenie { Nazwa = "Kółko do ćwiczeń (Ab Roller)", Kategoria = "Silowe", Opis = "Rozciąga i ekstremalnie wzmacnia całą powięź brzuszną." },
+                new Cwiczenie { Nazwa = "Scyzoryki (V-ups)", Kategoria = "Silowe", Opis = "Wymaga koordynacji, łączy pracę góry i dołu brzucha." },
+                new Cwiczenie { Nazwa = "Rowerek w leżeniu", Kategoria = "Silowe", Opis = "Dynamiczne ćwiczenie świetnie palące mięśnie skośne." },
+                new Cwiczenie { Nazwa = "Wznosy tułowia na ławce rzymskiej (Back Extensions)", Kategoria = "Silowe", Opis = "Kluczowe ćwiczenie wzmacniające prostowniki grzbietu." },
+
+                // CARDIO I INTERWAŁY
+                new Cwiczenie { Nazwa = "Bieg na bieżni", Kategoria = "Cardio", Opis = "Klasyczne cardio poprawiające wydolność płuc i serca." },
+                new Cwiczenie { Nazwa = "Jazda na rowerze stacjonarnym", Kategoria = "Cardio", Opis = "Bezpieczne dla stawów ćwiczenie kardio." },
+                new Cwiczenie { Nazwa = "Wiosłowanie na ergometrze", Kategoria = "Cardio", Opis = "Kompleksowe ćwiczenie kardio, angażujące również plecy i nogi." },
+                new Cwiczenie { Nazwa = "Orbitrek (Maszyna eliptyczna)", Kategoria = "Cardio", Opis = "Niskooporowe ćwiczenie kardio na całe ciało." },
+                new Cwiczenie { Nazwa = "Schody (Stairmaster)", Kategoria = "Cardio", Opis = "Mordercze kardio, niesamowicie mocno palące pośladki i łydki." },
+                new Cwiczenie { Nazwa = "Skakanka", Kategoria = "Cardio", Opis = "Poprawia koordynację, szybkość i kondycję." },
+                new Cwiczenie { Nazwa = "Burpees (Padnij-powstań)", Kategoria = "Mieszane", Opis = "Zabójcze ćwiczenie angażujące całe ciało, idealne na interwały." },
+                new Cwiczenie { Nazwa = "Pajacyki (Jumping Jacks)", Kategoria = "Cardio", Opis = "Doskonała rozgrzewka i forma aktywnego wypoczynku." },
+                new Cwiczenie { Nazwa = "Bieg bokserski w miejscu z hantlami", Kategoria = "Cardio", Opis = "Podnosi tętno i poprawia wytrzymałość obręczy barkowej." },
+
+                // ROZCIĄGANIE I MOBILNOŚĆ
+                new Cwiczenie { Nazwa = "Rozciąganie klatki piersiowej w futrynie", Kategoria = "Rozciagajace", Opis = "Otwiera klatkę piersiową, cofa barki do tyłu." },
+                new Cwiczenie { Nazwa = "Koci grzbiet", Kategoria = "Rozciagajace", Opis = "Rozluźnia kręgosłup i poprawia jego mobilność." },
+                new Cwiczenie { Nazwa = "Pozycja psa z głową w dół", Kategoria = "Rozciagajace", Opis = "Klasyczna figura z jogi, rozciąga plecy, dwugłowe uda i łydki." },
+                new Cwiczenie { Nazwa = "Rozciąganie czworogłowych uda stojąc", Kategoria = "Rozciagajace", Opis = "Zapobiega przykurczom po treningu nóg." },
+                new Cwiczenie { Nazwa = "Pozycja dziecka (Balasana)", Kategoria = "Rozciagajace", Opis = "Najlepsze ćwiczenie relaksujące odcinek lędźwiowy po martwych ciągach." },
+                new Cwiczenie { Nazwa = "Skręty tułowia w leżeniu", Kategoria = "Rozciagajace", Opis = "Uwalnia napięcie z kręgosłupa i mięśni skośnych brzucha." },
+                new Cwiczenie { Nazwa = "Foam Rolling pasma biodrowo-piszczelowego (ITB)", Kategoria = "Rozciagajace", Opis = "Bolesne, ale niezbędne rolowanie boku uda dla zdrowia kolan." },
+                new Cwiczenie { Nazwa = "Foam Rolling pleców", Kategoria = "Rozciagajace", Opis = "Automasaż rozbijający punkty spustowe w rejonie łopatek." },
+
+                // CROSSFIT I MIESZANE
+                new Cwiczenie { Nazwa = "Swing z Kettlebellem", Kategoria = "Mieszane", Opis = "Dynamiczne ćwiczenie budujące siłę eksplozywną z bioder." },
+                new Cwiczenie { Nazwa = "Thrusters ze sztangą/hantlami", Kategoria = "Mieszane", Opis = "Połączenie przysiadu przedniego z wyciśnięciem żołnierskim." },
+                new Cwiczenie { Nazwa = "Wall Balls (Rzuty piłką lekarską)", Kategoria = "Mieszane", Opis = "Przysiad połączony z wyrzuceniem piłki w górę. Mocno podnosi tętno." },
+                new Cwiczenie { Nazwa = "Box Jumps (Wskoki na skrzynię)", Kategoria = "Mieszane", Opis = "Poprawia dynamikę nóg i szybkość." },
+                new Cwiczenie { Nazwa = "Battle Ropes (Liny animacyjne)", Kategoria = "Mieszane", Opis = "Wykończeniowe ćwiczenie palące barki i poprawiające kondycję." },
+                new Cwiczenie { Nazwa = "Sled Push (Pchanie sań)", Kategoria = "Mieszane", Opis = "Brak fazy ekscentrycznej sprawia, że mocno pompuje nogi bez zakwasów." },
+                new Cwiczenie { Nazwa = "Rwanie z odważnikiem kulowym", Kategoria = "Mieszane", Opis = "Zaawansowane technicznie ćwiczenie na całe ciało." },
+                new Cwiczenie { Nazwa = "Spacer farmera z hantlami", Kategoria = "Mieszane", Opis = "Buduje morderczy chwyt i wzmacnia core." }
             };
         }
 

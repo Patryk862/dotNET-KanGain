@@ -24,11 +24,16 @@ namespace KanGainNET.Controllers
 
         public IActionResult Index()
         {
+            var query = _context.Grafiki.Include(g => g.Sala).Where(g => g.PracownikId == 1);
+            string sql = query.ToQueryString();
+
             return View();
         }
 
-        public async Task<IActionResult> Grafik()
+        public async Task<IActionResult> Grafik(int page = 1)
         {
+            int pageSize = 12; 
+
             var uzytkownikIdKlaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
             if (string.IsNullOrEmpty(uzytkownikIdKlaim) || !int.TryParse(uzytkownikIdKlaim, out int loggedInUserId))
@@ -36,15 +41,24 @@ namespace KanGainNET.Controllers
                 return RedirectToAction("Login", "Account");
             }
 
-            var pracownik = await _context.Pracownicy
-                .FirstOrDefaultAsync(p => p.UzytkownikId == loggedInUserId);
+            var pracownik = await _context.Uzytkownicy
+                .FirstOrDefaultAsync(u => u.Id == loggedInUserId && u.RolaId == 3);
 
+            if (pracownik == null) return Forbid();
 
-            var grafikPracownika = await _context.Grafiki
-                .Include(g => g.ZajeciaGrupowe) 
-                .Include(g => g.Sala)          
+            var query = _context.Grafiki
+                .Include(g => g.ZajeciaGrupowe)
+                .Include(g => g.Sala)
                 .Where(g => g.PracownikId == pracownik.Id)
-                .OrderBy(g => g.DataStart)
+                .OrderBy(g => g.DataStart);
+
+            int totalItems = await query.CountAsync();
+            ViewBag.TotalPages = (int)Math.Ceiling(totalItems / (double)pageSize);
+            ViewBag.CurrentPage = page;
+
+            var grafikPracownika = await query
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
                 .ToListAsync();
 
             return View(grafikPracownika);
@@ -77,8 +91,8 @@ namespace KanGainNET.Controllers
                 return RedirectToAction("Login", "Account");
             }
 
-            var pracownik = await _context.Pracownicy
-                .FirstOrDefaultAsync(p => p.UzytkownikId == loggedInUserId);
+            var pracownik = await _context.Uzytkownicy
+                .FirstOrDefaultAsync(u => u.Id == loggedInUserId && u.RolaId == 3);
 
             if (pracownik == null)
             {
@@ -87,7 +101,7 @@ namespace KanGainNET.Controllers
 
             var planyPracownika = await _context.PlanyTreningowe
                 .Include(p => p.Uzytkownik).ThenInclude(u => u.Profil)
-                .Where(p => p.PracownikId == pracownik.Id)
+                .Where(p => p.TrenerId == pracownik.Id) // UWAGA ZMIANA nazwy klucza obcego
                 .OrderByDescending(p => p.DataStworzenia)
                 .ToListAsync();
 
@@ -97,12 +111,11 @@ namespace KanGainNET.Controllers
         [HttpGet]
         public async Task<IActionResult> StworzPlan(int? id)
         {
+            // Pobierz userów, którzy nie są pracownikami
             var uzytkownicy = await _context.Uzytkownicy
                 .Include(u => u.Profil)
                 .Include(u => u.Rola)
-                .Include(u => u.Pracownik)
-                .Where(u => u.Pracownik == null) 
-                .Where(u => u.Rola == null || (!u.Rola.Nazwa.ToLower().Contains("admin") && !u.Rola.Nazwa.ToLower().Contains("pracownik"))) 
+                .Where(u => u.RolaId != 3) // Ograniczenie
                 .ToListAsync();
 
             var cwiczenia = await _context.Cwiczenia.ToListAsync();
@@ -116,7 +129,7 @@ namespace KanGainNET.Controllers
                         ? $"{u.Profil.Imie} {u.Profil.Nazwisko}"
                         : u.Email
                 })
-                .OrderBy(x => x.Text) 
+                .OrderBy(x => x.Text)
                 .ToList(),
 
                 WszystkieCwiczenia = cwiczenia
@@ -146,7 +159,7 @@ namespace KanGainNET.Controllers
         public async Task<IActionResult> ZapiszPlan(int? Id, string Nazwa, int WybranyUzytkownikId, int[] WybraneCwiczeniaIds, string UkrytyOpisParametrow)
         {
             var uzytkownikIdKlaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var pracownik = await _context.Pracownicy.FirstOrDefaultAsync(p => p.UzytkownikId == int.Parse(uzytkownikIdKlaim));
+            var pracownik = await _context.Uzytkownicy.FirstOrDefaultAsync(u => u.Id == int.Parse(uzytkownikIdKlaim) && u.RolaId == 3);
 
             PlanTreningowy plan;
 
@@ -157,7 +170,7 @@ namespace KanGainNET.Controllers
 
                 plan.Nazwa = Nazwa;
                 plan.UzytkownikId = WybranyUzytkownikId;
-                plan.Opis = UkrytyOpisParametrow; 
+                plan.Opis = UkrytyOpisParametrow;
                 plan.Cwiczenia.Clear();
             }
             else
@@ -167,8 +180,8 @@ namespace KanGainNET.Controllers
                     Nazwa = Nazwa,
                     DataStworzenia = DateTime.Now,
                     UzytkownikId = WybranyUzytkownikId,
-                    PracownikId = pracownik.Id,
-                    Opis = UkrytyOpisParametrow, 
+                    TrenerId = pracownik.Id, // UWAGA ZMIANA klucza obcego
+                    Opis = UkrytyOpisParametrow,
                     Cwiczenia = new List<Cwiczenie>()
                 };
                 _context.PlanyTreningowe.Add(plan);

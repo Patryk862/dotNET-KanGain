@@ -32,8 +32,8 @@
             {
                 var planId = $"plan_{plan.Id}";
                 var collapseId = $"collapse_{plan.Id}";
-                var trenerImie = plan.Trener?.Uzytkownik?.Profil?.Imie ?? "Twój Trener";
-                var trenerNazwisko = plan.Trener?.Uzytkownik?.Profil?.Nazwisko ?? "";
+                var trenerImie = plan.Trener?.Profil?.Imie ?? "Twój Trener";
+                var trenerNazwisko = plan.Trener?.Profil?.Nazwisko ?? "";
 
                 <div class="accordion-item bg-dark border-secondary mb-3 rounded overflow-hidden shadow-sm">
                     <h2 class="accordion-header" id="@planId">

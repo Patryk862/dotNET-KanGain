@@ -21,7 +21,7 @@ namespace KanGainNET.Tests
             return new SilowniaContext(options);
         }
 
-        [Fact] // Sprawdzenie, czy metoda Index poprawnie filtruje użytkowników po nazwisku
+        [Fact]
         public async Task Index_WyszukiwanieUzytkownikow_FiltrujePoprawniePoNazwisku()
         {
             var dbContext = PobierzBazeWypelnionaDanymi();
@@ -57,8 +57,8 @@ namespace KanGainNET.Tests
             Assert.Equal("Jan", model.First().Profil.Imie);
         }
 
-        [Fact] // Sprawdzenie, czy metoda ZmienRole poprawnie awansuje klienta na trenera i tworzy profil trenera z domyślną specjalizacją
-        public async Task ZmienRole_AwansNaPracownika_TworzyWpisWTabeliPracownicyZDomyslnaSpecjalizacja()
+        [Fact]
+        public async Task ZmienRole_AwansNaPracownika_AktualizujeSpecjalizacjeUzytkownika()
         {
             var dbContext = PobierzBazeWypelnionaDanymi();
 
@@ -72,11 +72,9 @@ namespace KanGainNET.Tests
             await controller.ZmienRole(id: 1, nowaRolaId: 3);
 
             var awansowanyUser = await dbContext.Uzytkownicy.FindAsync(1);
-            var nowyWpisPracownika = await dbContext.Pracownicy.FirstOrDefaultAsync(p => p.UzytkownikId == 1);
 
-            Assert.Equal(3, awansowanyUser.RolaId); 
-            Assert.NotNull(nowyWpisPracownika);    
-            Assert.Equal("Boks", nowyWpisPracownika.Specjalizacja); 
+            Assert.Equal(3, awansowanyUser.RolaId);
+            Assert.Equal("Boks", awansowanyUser.Specjalizacja);
         }
     }
 }

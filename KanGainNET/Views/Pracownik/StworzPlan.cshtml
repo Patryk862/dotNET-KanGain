@@ -23,17 +23,29 @@
                     <div class="list-group">
                         @foreach (var kat in Model.WszystkieCwiczenia.GroupBy(c => c.Kategoria))
                         {
-                            <div class="text-secondary fw-bold small mt-3 mb-2 text-uppercase">@kat.Key</div>
-                            @foreach (var cw in kat)
-                            {
-                                <div class="list-group-item bg-dark border-secondary d-flex justify-content-between align-items-center">
-                                    <span class="text-white">@cw.Nazwa</span>
-                                    <button type="button" class="btn btn-sm btn-outline-light rounded-pill add-btn"
-                                            data-id="@cw.Id" data-name="@cw.Nazwa">
-                                        Dodaj
-                                    </button>
-                                </div>
-                            }
+                            var categoryId = "cat-" + kat.Key.GetHashCode();
+
+                            <div class="category-toggle d-flex justify-content-between align-items-center mt-3 mb-2 p-2 bg-black rounded"
+                                 style="cursor: pointer;"
+                                 data-bs-toggle="collapse"
+                                 data-bs-target="#@categoryId"
+                                 aria-expanded="true">
+                                <span class="text-secondary fw-bold small text-uppercase">@kat.Key</span>
+                                <small class="text-secondary">▼</small>
+                            </div>
+
+                            <div class="collapse show" id="@categoryId">
+                                @foreach (var cw in kat)
+                                {
+                                    <div class="list-group-item bg-dark border-secondary d-flex justify-content-between align-items-center">
+                                        <span class="text-white">@cw.Nazwa</span>
+                                        <button type="button" class="btn btn-sm btn-outline-light rounded-pill add-btn"
+                                                data-id="@cw.Id" data-name="@cw.Nazwa">
+                                            Dodaj
+                                        </button>
+                                    </div>
+                                }
+                            </div>
                         }
                     </div>
                 </div>

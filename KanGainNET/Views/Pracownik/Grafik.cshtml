@@ -62,4 +62,49 @@
             }
         </div>
     </div>
+
+    @if (ViewBag.TotalPages > 1)
+    {
+        int current = (int)ViewBag.CurrentPage;
+        int total = (int)ViewBag.TotalPages;
+        int start = Math.Max(1, current - 2);
+        int end = Math.Min(total, current + 2);
+
+        <nav aria-label="Page navigation" class="mt-4">
+            <ul class="pagination justify-content-center">
+                <li class="page-item @(current == 1 ? "disabled" : "")">
+                    <a class="page-link bg-dark text-white border-secondary" asp-action="Grafik" asp-route-page="@(current - 1)">&laquo;</a>
+                </li>
+
+                @if (start > 1)
+                {
+                    <li class="page-item"><a class="page-link bg-dark text-white border-secondary" asp-action="Grafik" asp-route-page="1">1</a></li>
+                    @if (start > 2)
+                    {
+                        <li class="page-item disabled"><span class="page-link bg-dark text-white border-secondary">...</span></li>
+                    }
+                }
+
+                @for (int i = start; i <= end; i++)
+                {
+                    <li class="page-item @(i == current ? "active" : "")">
+                        <a class="page-link bg-dark text-white border-secondary" asp-action="Grafik" asp-route-page="@i">@i</a>
+                    </li>
+                }
+
+                @if (end < total)
+                {
+                    @if (end < total - 1)
+                    {
+                        <li class="page-item disabled"><span class="page-link bg-dark text-white border-secondary">...</span></li>
+                    }
+                    <li class="page-item"><a class="page-link bg-dark text-white border-secondary" asp-action="Grafik" asp-route-page="@total">@total</a></li>
+                }
+
+                <li class="page-item @(current == total ? "disabled" : "")">
+                    <a class="page-link bg-dark text-white border-secondary" asp-action="Grafik" asp-route-page="@(current + 1)">&raquo;</a>
+                </li>
+            </ul>
+        </nav>
+    }
 </div>

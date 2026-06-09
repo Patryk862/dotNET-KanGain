@@ -97,9 +97,10 @@
                             <option value="">-- Brak --</option>
                             @foreach (var p in Model.DostepniPracownicy)
                             {
-                                var nazwaTrenera = p.Uzytkownik?.Profil != null && !string.IsNullOrEmpty(p.Uzytkownik.Profil.Imie)
-                                    ? $"{p.Uzytkownik.Profil.Imie} {p.Uzytkownik.Profil.Nazwisko} ({p.Uzytkownik.Email})"
-                                    : p.Uzytkownik?.Email;
+                                var nazwaTrenera = p.Profil != null && !string.IsNullOrEmpty(p.Profil.Imie)
+                                    ? $"{p.Profil.Imie} {p.Profil.Nazwisko} ({p.Email})"
+                                    : p.Email;
+
                                 <option value="@p.Id">@nazwaTrenera</option>
                             }
                         </select>
